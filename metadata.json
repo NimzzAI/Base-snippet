@@ -1,0 +1,9 @@
+{
+  "name": "Nimzz Code",
+  "description": "Platform berbagi snippet dan project code untuk developer Indonesia.",
+  "prompt": "Nimzz Code - Platform berbagi kode terbaik",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

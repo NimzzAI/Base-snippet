@@ -1,0 +1,22 @@
+{
+  "name": "Nimzz Code",
+  "short_name": "Nimzz Code",
+  "description": "Platform berbagi kode terbaik untuk developer Indonesia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml"
+    }
+  ]
+}
