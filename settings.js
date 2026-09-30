@@ -1,0 +1,60 @@
+const settings = {
+  name: "Nimzz",
+  websiteName: "Nimzz Code",
+  description: "Platform berbagi snippet dan modul kode pemrograman untuk developer.",
+  tagline: "Platform berbagi kode pemrograman",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://base-snippet.vercel.app",
+  author: "Nimzz",
+  site: {
+    name: "Nimzz Code",
+    tagline: "Platform berbagi kode pemrograman",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://base-snippet.vercel.app",
+    footerText: "Crafted by Nimzz",
+  },
+  admin: {
+    username: process.env.ADMIN_USERNAME || "admin",
+    defaultPasswordFallback: process.env.ADMIN_PASSWORD || "admin123",
+    displayName: "Nimzz Admin",
+    bio: "Pengelola platform Nimzz Code.",
+    photoURL: "/avatar-default.png",
+    banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+    socials: {
+      whatsapp: "https://whatsapp.com/channel/0029VaNimzzCodeOfficial",
+      github: "NimzzAI",
+      telegram: "nimzz_dev",
+      tiktok: "nimzz_code",
+    },
+  },
+  categories: ["Tools", "AI", "Anime", "Other"],
+  security: {
+    maxLoginAttempts: 5,
+    lockoutDurationMinutes: 15,
+    sessionDurationHours: 24,
+    maxCodeSizeKB: 512,
+    allowedImageDomains: [
+      "firebasestorage.googleapis.com",
+      "lh3.googleusercontent.com",
+      "avatars.githubusercontent.com",
+      "images.unsplash.com",
+      "cdn.aceimg.com",
+    ],
+  },
+  telegram: {
+    botToken: process.env.TELEGRAM_BOT_TOKEN || "",
+    ownerChatId: process.env.TELEGRAM_OWNER_CHAT_ID || "",
+    webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET || "",
+    notifyOnNewRequest: true,
+    notifyOnNewCode: true,
+  },
+  firebase: {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY || "AIzaSyBKB71nj9RGDcGQu6IFtSzKxGEqWg_oOCg",
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || process.env.FIREBASE_AUTH_DOMAIN || "nimzz-backend.firebaseapp.com",
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "nimzz-backend",
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_STORAGE_BUCKET || "nimzz-backend.firebasestorage.app",
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "363591883287",
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:363591883287:web:cfb06ab366d9468e545a52",
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-RCGJCQJ262",
+  },
+};
+
+module.exports = settings;
