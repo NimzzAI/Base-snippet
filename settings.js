@@ -1,3 +1,7 @@
+// ============================================================
+//  SETTINGS.JS — Configuration for Next.js runtime & CJS modules
+// ============================================================
+
 const settings = {
   name: "Nimzz",
   websiteName: "Nimzz Code",
