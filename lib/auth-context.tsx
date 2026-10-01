@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback } from "react";
 import { config, SiteConfig } from "./config";
 
 type AdminProfile = SiteConfig["admin"];
@@ -7,7 +7,10 @@ type AdminProfile = SiteConfig["admin"];
 type AuthCtx = {
   isAdmin: boolean;
   adminConfig: AdminProfile;
+  /** true selama status login admin belum selesai dicek server (jangan redirect / tampilkan peringatan dulu) */
   loading: boolean;
+  /** true setelah profil dari server berhasil dimuat sekali (cache lokal tidak dihitung) */
+  profileReady: boolean;
   loginAdmin: (
     username: string,
     pass: string
@@ -42,11 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminConfig, setAdminConfig] = useState<AdminProfile>(config.admin);
   const [loading, setLoading] = useState(true);
+  const [profileReady, setProfileReady] = useState(false);
+  const lastProfileJson = useRef<string>("");
 
   // 1. Initial Local Cache for zero-delay paint
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
+        if (localStorage.getItem("nimzz_admin_hint") === "1") setIsAdmin(true);
         const cached = localStorage.getItem("nimzz_admin_custom_profile");
         if (cached) {
           const parsed = JSON.parse(cached);
@@ -63,42 +69,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 2. Fetch server-side JSON database admin profile
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/profile");
-      if (res.ok) {
-        const json = await res.json();
-        if (json.ok && json.data) {
-          setAdminConfig((prev) => {
-            const merged = {
-              ...prev,
-              ...json.data,
-              socials: {
-                ...prev.socials,
-                ...(json.data.socials || {}),
-              },
-            };
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem("nimzz_admin_custom_profile", JSON.stringify(merged));
-              } catch {}
-            }
-            return merged;
-          });
-        }
-      }
-    } catch {}
+      const res = await fetch("/api/admin/profile", { cache: "no-store" });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (!json.ok || !json.data) return;
+
+      setProfileReady(true);
+
+      // Kalau isi profil di server sama dengan yang terakhir, jangan bikin object baru.
+      // Object baru tiap polling membuat form yang sedang diedit ikut ter-reset.
+      const serialized = JSON.stringify(json.data);
+      if (serialized === lastProfileJson.current) return;
+      lastProfileJson.current = serialized;
+
+      setAdminConfig((prev) => {
+        const merged = {
+          ...prev,
+          ...json.data,
+          socials: {
+            ...prev.socials,
+            ...(json.data.socials || {}),
+          },
+        };
+        try {
+          localStorage.setItem("nimzz_admin_custom_profile", JSON.stringify(merged));
+        } catch {}
+        return merged;
+      });
+    } catch {
+      // Gagal jaringan: biarkan profil yang sedang tampil, jangan balik ke default
+    }
   }, []);
 
   const checkSession = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/session");
+      const res = await fetch("/api/admin/session", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        setIsAdmin(Boolean(data.authenticated));
-      } else {
-        setIsAdmin(false);
+        const authed = Boolean(data.authenticated);
+        setIsAdmin(authed);
+        try {
+          if (authed) localStorage.setItem("nimzz_admin_hint", "1");
+          else localStorage.removeItem("nimzz_admin_hint");
+        } catch {}
       }
+      // Kalau server error (5xx) atau jaringan putus, status login lama dipertahankan.
+      // Sebelumnya langsung dianggap logout sehingga admin tiba-tiba disuruh login.
     } catch {
-      setIsAdmin(false);
+      // abaikan, pertahankan status sebelumnya
     } finally {
       setLoading(false);
     }
@@ -130,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       if (res.ok && data.ok) {
         setIsAdmin(true);
+        try { localStorage.setItem("nimzz_admin_hint", "1"); } catch {}
         await fetchProfile();
         return { ok: true };
       }
@@ -152,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/admin/logout", { method: "POST" });
     } catch {}
+    try { localStorage.removeItem("nimzz_admin_hint"); } catch {}
     setIsAdmin(false);
   };
 
@@ -189,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         adminConfig,
         loading,
+        profileReady,
         loginAdmin,
         logout,
         refreshProfile,

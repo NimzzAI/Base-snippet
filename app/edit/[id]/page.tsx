@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function EditCodePage() {
   const params = useParams();
   const id = params?.id as string;
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
   const { categories } = useRealtimeCategories();
 
@@ -54,7 +54,7 @@ export default function EditCodePage() {
     loadCode();
   }, [loadCode]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="skeleton" style={{ height: 120 }} />

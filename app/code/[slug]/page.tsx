@@ -7,6 +7,7 @@ import { toast } from "@/components/ToastProvider";
 import { Avatar } from "@/components/CodeCard";
 import VSCodeViewer from "@/components/VSCodeViewer";
 import { config } from "@/lib/config";
+import { buildShareText, codeUrl, fileExtFor, fileNameFor, validThumbnail } from "@/lib/code-utils";
 import Link from "next/link";
 
 function timeAgo(d: string) {
@@ -80,35 +81,20 @@ export default function CodeDetailPage() {
   };
 
   const downloadCode = () => {
-    const ext =
-      code?.language === "python"
-        ? "py"
-        : code?.language === "javascript"
-        ? "js"
-        : code?.language === "typescript"
-        ? "ts"
-        : code?.language === "php"
-        ? "php"
-        : code?.language === "go"
-        ? "go"
-        : code?.language === "rust"
-        ? "rs"
-        : code?.language === "css"
-        ? "css"
-        : "txt";
     const blob = new Blob([code?.code || ""], { type: "text/plain" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${code?.slug || "snippet"}.${ext}`;
+    a.download = `${code?.slug || "snippet"}.${fileExtFor(code?.language)}`;
     a.click();
   };
 
   const handleShare = async () => {
     if (!code) return;
-    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    const shareUrl = codeUrl(code.slug, window.location.origin);
+    const text = buildShareText(code);
     const shareData = {
-      title: `${code.title} — ${config.websiteName}`,
-      text: code.description || `Lihat snippet kode ${code.title} di ${config.websiteName}`,
+      title: `${code.title} • ${code.category || "Umum"} — ${config.websiteName}`,
+      text,
       url: shareUrl,
     };
 
@@ -116,12 +102,11 @@ export default function CodeDetailPage() {
       try {
         setSharing(true);
         await navigator.share(shareData);
-        toast("Tautan berhasil dibagikan!", "success");
       } catch (err: any) {
         if (err?.name !== "AbortError") {
           try {
-            await navigator.clipboard.writeText(shareUrl);
-            toast("Tautan halaman disalin ke clipboard!", "info");
+            await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+            toast("Info kode + tautan disalin ke clipboard!", "info");
           } catch {}
         }
       } finally {
@@ -129,8 +114,8 @@ export default function CodeDetailPage() {
       }
     } else {
       try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast("Tautan halaman disalin ke clipboard!", "success");
+        await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+        toast("Info kode + tautan disalin ke clipboard!", "success");
       } catch {
         toast("Gagal menyalin tautan", "error");
       }
@@ -170,17 +155,8 @@ export default function CodeDetailPage() {
     );
   }
 
-  const fileName = `${code.slug}.${
-    code.language === "javascript"
-      ? "js"
-      : code.language === "typescript"
-      ? "ts"
-      : code.language === "python"
-      ? "py"
-      : code.language === "css"
-      ? "css"
-      : "txt"
-  }`;
+  const fileName = fileNameFor(code);
+  const thumb = validThumbnail(code.thumbnail);
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 10 }}>
@@ -286,6 +262,21 @@ export default function CodeDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* Thumbnail */}
+      {thumb && (
+        <div className="detail-thumb">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={thumb}
+            alt={`Thumbnail ${code.title}`}
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+            }}
+          />
+        </div>
+      )}
 
       {/* Description */}
       {code.description && (

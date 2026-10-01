@@ -12,7 +12,7 @@ import { uploadImage } from "@/lib/upload-client";
 import Link from "next/link";
 
 export default function PublishPage() {
-  const { isAdmin, adminConfig } = useAuth();
+  const { isAdmin, adminConfig, loading: authLoading } = useAuth();
   const router = useRouter();
   const { categories } = useRealtimeCategories();
 
@@ -51,6 +51,15 @@ export default function PublishPage() {
       input.value = "";
     }
   };
+
+  if (authLoading) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="skeleton" style={{ height: 120 }} />
+        <div className="skeleton" style={{ height: 350 }} />
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (

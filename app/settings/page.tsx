@@ -5,15 +5,16 @@ import { useAuth } from "@/lib/auth-context";
 
 export default function SettingsRedirect() {
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (isAdmin) {
       router.replace("/dashboard");
     } else {
       router.replace("/admin/login");
     }
-  }, [isAdmin, router]);
+  }, [isAdmin, loading, router]);
 
   return (
     <div className="empty-state">

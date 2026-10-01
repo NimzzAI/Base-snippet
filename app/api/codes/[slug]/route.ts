@@ -53,7 +53,12 @@ export async function PUT(
     const { slug } = await params;
     const body = await req.json();
 
-    const updated = await updateCode(slug, body);
+    // Hanya field yang boleh diubah, id/slug/views/author tidak bisa ditimpa dari luar
+    const allowed = ["title", "description", "category", "language", "tags", "thumbnail", "code"];
+    const updates: Record<string, unknown> = {};
+    for (const k of allowed) if (k in (body || {})) updates[k] = body[k];
+
+    const updated = await updateCode(slug, updates);
     if (!updated) {
       return NextResponse.json(
         { ok: false, error: "Snippet kode tidak ditemukan" },

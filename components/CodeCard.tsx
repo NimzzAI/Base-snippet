@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Code } from "@/lib/types";
 import { toast } from "./ToastProvider";
 import CodePreviewModal from "./CodePreviewModal";
+import { fileNameFor, validThumbnail } from "@/lib/code-utils";
 
 export function Avatar({
   src,
@@ -63,17 +64,9 @@ export default function CodeCard({ code }: { code: Code }) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const fileName = `${code.slug || "script"}.${
-    code.language === "javascript"
-      ? "js"
-      : code.language === "typescript"
-      ? "ts"
-      : code.language === "python"
-      ? "py"
-      : code.language === "css"
-      ? "css"
-      : "txt"
-  }`;
+  const fileName = fileNameFor(code);
+  const thumb = validThumbnail(code.thumbnail);
+  const [thumbFailed, setThumbFailed] = useState(false);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -97,6 +90,19 @@ export default function CodeCard({ code }: { code: Code }) {
             <span className="lang-badge">{code.language || "code"}</span>
           </div>
         </div>
+
+        {/* Thumbnail */}
+        {thumb && !thumbFailed && (
+          <Link href={`/code/${code.slug}`} className="snippet-thumb" aria-label={`Buka ${code.title}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumb}
+              alt={`Thumbnail ${code.title}`}
+              loading="lazy"
+              onError={() => setThumbFailed(true)}
+            />
+          </Link>
+        )}
 
         {/* Title */}
         <h3>
@@ -123,14 +129,14 @@ export default function CodeCard({ code }: { code: Code }) {
               Quick View
             </span>
           </div>
-          <div className="code-window-body" style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: "0.78rem", minHeight: "80px" }}>
+          <div className="code-window-body code-window-body--preview">
             {(code.code || "// no code preview")
               .split("\n")
               .slice(0, 5)
               .map((line, idx) => (
-                <div key={idx} style={{ display: "flex", gap: "10px", lineHeight: "1.5" }}>
-                  <span style={{ color: "#555", userSelect: "none", minWidth: "16px", textAlign: "right" }}>{idx + 1}</span>
-                  <span style={{ color: "#d4d4d4", whiteSpace: "pre", overflow: "hidden", textOverflow: "ellipsis" }}>{line || " "}</span>
+                <div key={idx} className="preview-line">
+                  <span className="preview-ln">{idx + 1}</span>
+                  <span className="preview-text">{line || " "}</span>
                 </div>
               ))}
           </div>

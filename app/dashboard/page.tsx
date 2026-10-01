@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
@@ -23,7 +23,7 @@ const BANNER_PRESETS = [
 ];
 
 export default function DashboardPage() {
-  const { isAdmin, adminConfig, logout, updateAdminProfile } = useAuth();
+  const { isAdmin, adminConfig, logout, updateAdminProfile, loading: authLoading, profileReady } = useAuth();
   const router = useRouter();
   const { categories, refresh: refreshCategories } = useRealtimeCategories();
 
@@ -50,25 +50,45 @@ export default function DashboardPage() {
   const [newCatInput, setNewCatInput] = useState("");
   const [addingCat, setAddingCat] = useState(false);
 
+  // Redirect hanya setelah server memastikan memang belum login
   useEffect(() => {
-    if (!isAdmin && !loading) {
+    if (!authLoading && !isAdmin) {
       router.replace("/admin/login");
     }
-  }, [isAdmin, loading, router]);
+  }, [isAdmin, authLoading, router]);
+
+  // Isi form profil SEKALI dari data server. Setelah itu form tidak boleh
+  // ditimpa otomatis (polling) supaya perubahan yang belum disimpan tidak hilang.
+  const formSeeded = useRef(false);
+  const fillForm = useCallback(() => {
+    setDisplayName(adminConfig.displayName ?? config.admin.displayName);
+    setUsername(adminConfig.username ?? config.admin.username);
+    setBio(adminConfig.bio ?? config.admin.bio);
+    setAvatarUrl(adminConfig.photoURL ?? config.admin.photoURL);
+    setBannerUrl(adminConfig.banner ?? config.admin.banner);
+    setWhatsapp(adminConfig.socials?.whatsapp ?? config.admin.socials.whatsapp);
+    setGithub(adminConfig.socials?.github ?? config.admin.socials.github);
+    setTelegram(adminConfig.socials?.telegram ?? config.admin.socials.telegram);
+    setTiktok(adminConfig.socials?.tiktok ?? config.admin.socials.tiktok);
+  }, [adminConfig]);
 
   useEffect(() => {
-    if (adminConfig) {
-      setDisplayName(adminConfig.displayName || config.admin.displayName);
-      setUsername(adminConfig.username || config.admin.username);
-      setBio(adminConfig.bio || config.admin.bio);
-      setAvatarUrl(adminConfig.photoURL || config.admin.photoURL);
-      setBannerUrl(adminConfig.banner || config.admin.banner);
-      setWhatsapp(adminConfig.socials?.whatsapp || config.admin.socials.whatsapp);
-      setGithub(adminConfig.socials?.github || config.admin.socials.github);
-      setTelegram(adminConfig.socials?.telegram || config.admin.socials.telegram);
-      setTiktok(adminConfig.socials?.tiktok || config.admin.socials.tiktok);
-    }
-  }, [adminConfig]);
+    if (formSeeded.current || !profileReady) return;
+    formSeeded.current = true;
+    fillForm();
+  }, [profileReady, fillForm]);
+
+  // Cadangan: kalau server profil lambat / gagal, isi dari cache setelah 4 detik
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!formSeeded.current) {
+        formSeeded.current = true;
+        fillForm();
+      }
+    }, 4000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -209,7 +229,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="skeleton" style={{ height: 140 }} />

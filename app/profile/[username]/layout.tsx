@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ username: string }>;
+  params: { username: string };
 }): Promise<Metadata> {
   try {
-    const { username } = await params;
+    const username = decodeURIComponent(params.username);
     const admin = await getAdminProfile();
     if (admin.username.toLowerCase() === username.toLowerCase()) {
       return {
@@ -22,4 +22,8 @@ export async function generateMetadata({
   } catch {
     return { title: "Profil Pengguna - Nimzz Code" };
   }
+}
+
+export default function ProfileLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }
