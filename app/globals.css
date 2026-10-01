@@ -71,6 +71,8 @@ body {
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -1358,7 +1360,7 @@ button { font-family: inherit; }
   border: var(--border-w) solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  margin-bottom: 40px;
+  margin-bottom: 72px;
 }
 
 .profile-banner-wrap > img,
@@ -1368,15 +1370,21 @@ button { font-family: inherit; }
 
 .profile-avatar-pin {
   position: absolute;
-  bottom: -30px;
+  bottom: -56px;
   left: 24px;
 }
 
 .profile-avatar-pin .avatar-lg {
-  width: 80px;
-  height: 80px;
-  border-width: 3.5px;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 0;
+  border-width: 4px;
   box-shadow: var(--shadow);
+}
+
+@media (max-width: 480px) {
+  .profile-avatar-pin { left: 18px; }
+  .profile-avatar-pin .avatar-lg { width: 104px; height: 104px; }
 }
 
 .dash-toolbar {
@@ -1978,3 +1986,7 @@ footer strong { color: var(--text); font-weight: 800; }
   .preview-actions { padding-left: 14px; padding-right: 14px; }
   .preview-actions .btn { flex: 1 1 auto; justify-content: center; }
 }
+
+/* Gambar tajam: hindari pengecilan kasar di layar HP beresolusi tinggi */
+img { image-rendering: auto; -webkit-user-drag: none; }
+.snippet-thumb img, .detail-thumb img { image-rendering: -webkit-optimize-contrast; image-rendering: high-quality; }

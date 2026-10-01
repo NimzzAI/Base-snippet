@@ -160,6 +160,21 @@ export default function CodeDetailPage() {
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 10 }}>
+      {/* Thumbnail */}
+      {thumb && (
+        <div className="detail-thumb">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={thumb}
+            alt={`Thumbnail ${code.title}`}
+            loading="eager"
+            onError={(e) => {
+              (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+            }}
+          />
+        </div>
+      )}
+
       {/* Navigation Breadcrumb / Back button */}
       <div style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link href="/search" className="btn btn-sm">
@@ -262,21 +277,6 @@ export default function CodeDetailPage() {
           </button>
         </div>
       </div>
-
-      {/* Thumbnail */}
-      {thumb && (
-        <div className="detail-thumb">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={thumb}
-            alt={`Thumbnail ${code.title}`}
-            loading="lazy"
-            onError={(e) => {
-              (e.currentTarget.parentElement as HTMLElement).style.display = "none";
-            }}
-          />
-        </div>
-      )}
 
       {/* Description */}
       {code.description && (

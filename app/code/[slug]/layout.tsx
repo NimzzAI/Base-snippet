@@ -41,13 +41,16 @@ export async function generateMetadata({
         siteName: config.websiteName,
         title,
         description,
-        images: [{ url: image, width: 1200, height: 630, alt: item.title }],
+        images: [
+          { url: image, width: 1200, height: 630, alt: item.title },
+          { url: `${config.siteUrl}/og-image.png`, width: 1200, height: 630, alt: config.websiteName },
+        ],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
-        images: [image],
+        images: [image, `${config.siteUrl}/og-image.png`],
       },
     };
   } catch {

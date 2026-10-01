@@ -1,9 +1,9 @@
 export type UploadKind = "avatar" | "banner" | "thumbnail";
 
 const LIMITS: Record<UploadKind, { maxBytes: number; maxSide: number }> = {
-  avatar: { maxBytes: 2 * 1024 * 1024, maxSide: 512 },
-  banner: { maxBytes: 4 * 1024 * 1024, maxSide: 1600 },
-  thumbnail: { maxBytes: 4 * 1024 * 1024, maxSide: 1280 },
+  avatar: { maxBytes: 3 * 1024 * 1024, maxSide: 1024 },
+  banner: { maxBytes: 5 * 1024 * 1024, maxSide: 2400 },
+  thumbnail: { maxBytes: 5 * 1024 * 1024, maxSide: 1920 },
 };
 
 function isAllowed(file: File): boolean {
@@ -50,15 +50,15 @@ async function shrink(file: File, kind: UploadKind): Promise<File> {
   ctx.drawImage(img, 0, 0, w, h);
 
   const wantPng = file.type === "image/png";
-  let blob = await toBlob(canvas, wantPng ? "image/png" : "image/jpeg", 0.88);
+  let blob = await toBlob(canvas, wantPng ? "image/png" : "image/jpeg", 0.95);
   let type = wantPng ? "image/png" : "image/jpeg";
 
   if (!blob || blob.size > maxBytes) {
-    blob = await toBlob(canvas, "image/jpeg", 0.8);
+    blob = await toBlob(canvas, "image/jpeg", 0.88);
     type = "image/jpeg";
   }
   if (!blob || blob.size > maxBytes) {
-    blob = await toBlob(canvas, "image/jpeg", 0.6);
+    blob = await toBlob(canvas, "image/jpeg", 0.75);
     type = "image/jpeg";
   }
   if (!blob || blob.size > maxBytes) {

@@ -266,6 +266,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <div className="avatar-lg">
                   {avatarSrc ? (
                     <Image
+ quality={95}
                       src={avatarSrc}
                       alt={adminName}
                       width={42}

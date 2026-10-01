@@ -32,6 +32,7 @@ export function Avatar({
         }}
       >
         <Image
+          quality={90}
           src={src}
           alt={name}
           width={size}

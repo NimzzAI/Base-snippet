@@ -106,6 +106,7 @@ export default function OwnerPage() {
         >
           {banner && (
             <Image
+ quality={95}
               src={banner}
               alt="Developer Banner"
               fill
@@ -139,7 +140,7 @@ export default function OwnerPage() {
           <div
             style={{
               position: "relative",
-              marginTop: -55,
+              marginTop: -72,
               marginBottom: 16,
               display: "flex",
               justifyContent: "space-between",
@@ -150,8 +151,8 @@ export default function OwnerPage() {
           >
             <div
               style={{
-                width: 100,
-                height: 100,
+                width: 132,
+                height: 132,
                 borderRadius: "50%",
                 border: "4px solid #000",
                 background: "var(--yellow)",
@@ -162,10 +163,11 @@ export default function OwnerPage() {
             >
               {photoURL ? (
                 <Image
+ quality={95}
                   src={photoURL}
                   alt={displayName}
-                  width={100}
-                  height={100}
+                  width={264}
+                  height={264}
                   unoptimized={photoURL.startsWith("data:")}
                   style={{ objectFit: "cover", width: "100%", height: "100%" }}
                   priority
@@ -178,7 +180,7 @@ export default function OwnerPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "2.4rem",
+                    fontSize: "3rem",
                     fontWeight: 800,
                   }}
                 >

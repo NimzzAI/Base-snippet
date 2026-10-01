@@ -8,6 +8,8 @@ import { config } from "@/lib/config";
 
 export const viewport: Viewport = {
   themeColor: "#00ffa4",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export const metadata: Metadata = {
@@ -26,7 +28,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(config.siteUrl),
 
   icons: {
-    icon: [{ url: "/favicon-32.png", type: "image/png", sizes: "32x32" }],
+    icon: [
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
     apple: "/apple-touch-icon.png",
     shortcut: "/favicon-32.png",
   },

@@ -248,6 +248,7 @@ export default function DashboardPage() {
       <div className="profile-banner-wrap" style={{ position: "relative" }}>
         {bannerUrl ? (
           <Image
+ quality={95}
             src={bannerUrl}
             alt="Banner Preview"
             fill
@@ -261,10 +262,11 @@ export default function DashboardPage() {
           <div className="avatar-lg" style={{ background: "var(--yellow)" }}>
             {avatarSrc ? (
               <Image
+ quality={95}
                 src={avatarSrc}
                 alt="Avatar Preview"
-                width={80}
-                height={80}
+                width={224}
+                height={224}
                 unoptimized={avatarSrc.startsWith("data:")}
                 style={{ objectFit: "cover", width: "100%", height: "100%" }}
               />
@@ -678,6 +680,7 @@ export default function DashboardPage() {
                 <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", background: "var(--yellow)", flexShrink: 0 }}>
                   {avatarSrc ? (
                     <Image
+ quality={95}
                       src={avatarSrc}
                       alt="Preview Avatar"
                       width={56}
@@ -749,6 +752,7 @@ export default function DashboardPage() {
                 <div style={{ width: 120, height: 48, borderRadius: "6px", border: "2px solid #000", overflow: "hidden", background: "var(--yellow)", position: "relative", flexShrink: 0 }}>
                   {bannerUrl && (
                     <Image
+ quality={95}
                       src={bannerUrl}
                       alt="Preview Banner"
                       fill

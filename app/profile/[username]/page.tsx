@@ -103,6 +103,7 @@ export default function ProfilePage() {
       <div className="profile-banner-wrap">
         {activeProfile.banner && (
           <Image
+ quality={95}
             src={activeProfile.banner}
             alt="Banner"
             fill
@@ -114,6 +115,7 @@ export default function ProfilePage() {
           <div className="avatar-lg" style={{ background: "var(--yellow)" }}>
             {activeProfile.photoURL ? (
               <Image
+ quality={95}
                 src={activeProfile.photoURL}
                 alt={activeProfile.displayName}
                 width={80}
