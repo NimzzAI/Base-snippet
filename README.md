@@ -83,8 +83,8 @@ Banner dan avatar kustom, badge Platform Owner & Verified Creator, bio, tech sta
 ## 📦 Instalasi Lokal
 
 ```bash
-git clone <url-repo-kamu>
-cd Base-snippet
+git clone https://github.com/NimzzAI/Base-snippet.git
+cd share-code-website
 cp .env.example .env.local
 npm install
 npm run dev
