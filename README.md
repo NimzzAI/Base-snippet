@@ -102,7 +102,7 @@ npm start
 ### Di Android (Termux)
 ```bash
 pkg install nodejs git
-git clone <url-repo-kamu> && cd Base-snippet
+git clone https://github.com/NimzzAI/Base-snippet.git && cd share-code-website
 cp .env.example .env.local
 npm install
 npm run dev
