@@ -1990,3 +1990,46 @@ footer strong { color: var(--text); font-weight: 800; }
 /* Gambar tajam: hindari pengecilan kasar di layar HP beresolusi tinggi */
 img { image-rendering: auto; -webkit-user-drag: none; }
 .snippet-thumb img, .detail-thumb img { image-rendering: -webkit-optimize-contrast; image-rendering: high-quality; }
+
+/* ============================================================
+   REQUEST PAGE
+   ============================================================ */
+/* Kartu request tidak boleh memotong dropdown status (snippet-card default overflow:hidden) */
+.request-card { overflow: visible; }
+.request-card:hover { transform: none; }
+.request-card:has(.filter-dropdown.is-open) { z-index: 30; }
+
+.req-counter { text-align: right; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
+
+.req-filters { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 8px; scrollbar-width: none; }
+.req-filters::-webkit-scrollbar { display: none; }
+.req-chip {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.82rem; font-weight: 800;
+  color: var(--text);
+  background: var(--surface);
+  border: var(--border-w-sm) solid var(--border);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 #000;
+  cursor: pointer;
+}
+.req-chip span {
+  min-width: 20px; padding: 0 6px; text-align: center;
+  font-size: 0.72rem; border-radius: 999px;
+  background: var(--bg); border: 1.5px solid var(--border);
+}
+.req-chip.active { background: var(--green); }
+.req-chip:active { transform: translate(2px, 2px); box-shadow: none; }
+
+.req-delete {
+  width: 40px; height: 40px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; background: var(--red);
+  border: var(--border-w-sm) solid var(--border);
+  border-radius: 10px;
+  box-shadow: 2px 2px 0 #000;
+  cursor: pointer;
+}
+.req-delete:active { transform: translate(2px, 2px); box-shadow: none; }

@@ -83,8 +83,8 @@ Banner dan avatar kustom, badge Platform Owner & Verified Creator, bio, tech sta
 ## 📦 Instalasi Lokal
 
 ```bash
-git clone https://github.com/NimzzAI/Base-snippet.git
-cd share-code-website
+git clone <url-repo-kamu>
+cd Base-snippet
 cp .env.example .env.local
 npm install
 npm run dev
@@ -102,7 +102,7 @@ npm start
 ### Di Android (Termux)
 ```bash
 pkg install nodejs git
-git clone https://github.com/NimzzAI/Base-snippet.git && cd share-code-website
+git clone <url-repo-kamu> && cd Base-snippet
 cp .env.example .env.local
 npm install
 npm run dev
@@ -313,6 +313,7 @@ Pengaturan ada di `lib/upload-client.ts` (`LIMITS`).
 - **Share menyertakan kategori**, bahasa, dan deskripsi, bukan hanya URL.
 - **Metadata share berfungsi** lewat `layout.tsx` (sebelumnya `metadata.ts` tidak pernah dibaca Next.js), dengan OG image otomatis.
 - **Avatar diperbesar** di dashboard (112px) dan halaman owner (132px).
+- **Halaman Request**: dropdown status tidak lagi terpotong kartu, ada filter status (Semua/Baru/Dikerjakan/Selesai/Ditolak) dengan jumlahnya, aksen warna status di tepi kartu, hitungan karakter deskripsi, dan tombol hapus request untuk admin.
 - **Ekstensi file download** benar untuk semua bahasa.
 - **Tampilan lebih HD**: `public/og-image.png` dibuat ulang (2400×1260, PNG asli; sebelumnya JPEG 736×414 yang salah ekstensi), batas upload dinaikkan (avatar 1024px, thumbnail 1920px, banner 2400px, kualitas 0.95), `next/image` memakai kualitas 90-95 dengan format AVIF/WebP, dan ikon 192/512 ditambahkan ke metadata.
 - **`PUT /api/codes/[slug]`** hanya menerima field yang boleh diubah.

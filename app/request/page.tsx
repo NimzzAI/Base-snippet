@@ -31,6 +31,7 @@ export default function RequestPage() {
   const [description, setDescription] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [filter, setFilter] = useState<"all" | CodeRequest["status"]>("all");
 
   const loadRequests = useCallback(async () => {
     try {
@@ -120,6 +121,34 @@ export default function RequestPage() {
     }
   };
 
+  const removeRequest = async (id: string, name: string) => {
+    if (!isAdmin) return;
+    if (!window.confirm(`Hapus request "${name}"?`)) return;
+    try {
+      const res = await fetch("/api/requests", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+        toast("Request dihapus", "success");
+      } else {
+        toast("Gagal menghapus request", "error");
+      }
+    } catch {
+      toast("Gagal menghapus request", "error");
+    }
+  };
+
+  const counts = requests.reduce<Record<string, number>>((acc, r) => {
+    acc[r.status] = (acc[r.status] || 0) + 1;
+    return acc;
+  }, {});
+  const visible = requests
+    .filter((r) => filter === "all" || r.status === filter)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   const statusOptions = [
     { value: "new", label: "Baru", icon: "fa-circle-plus" },
     { value: "in-progress", label: "Dikerjakan", icon: "fa-spinner" },
@@ -195,6 +224,7 @@ export default function RequestPage() {
               required
               maxLength={600}
             />
+            <div className="req-counter">{description.length}/600</div>
           </div>
 
           <button
@@ -226,6 +256,29 @@ export default function RequestPage() {
         </div>
       </div>
 
+      {!loading && requests.length > 0 && (
+        <div className="req-filters" role="tablist" aria-label="Filter status request">
+          {([
+            ["all", "Semua", requests.length],
+            ["new", "Baru", counts["new"] || 0],
+            ["in-progress", "Dikerjakan", counts["in-progress"] || 0],
+            ["done", "Selesai", counts["done"] || 0],
+            ["rejected", "Ditolak", counts["rejected"] || 0],
+          ] as const).map(([key, label, n]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={filter === key}
+              className={`req-chip ${filter === key ? "active" : ""}`}
+              onClick={() => setFilter(key as typeof filter)}
+            >
+              {label} <span>{n}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {Array(3)
@@ -240,15 +293,21 @@ export default function RequestPage() {
           <h3>Belum Ada Request</h3>
           <p>Jadilah yang pertama mengirimkan permintaan code.</p>
         </div>
+      ) : visible.length === 0 ? (
+        <div className="empty-state">
+          <i className="fa-solid fa-filter" />
+          <h3>Tidak Ada Request</h3>
+          <p>Belum ada request dengan status ini.</p>
+        </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {requests.map((r) => {
+          {visible.map((r) => {
             const statusStyle = STATUS_CONFIG[r.status] || STATUS_CONFIG.new;
             return (
               <div
                 key={r.id}
-                className="snippet-card"
-                style={{ padding: "18px 22px" }}
+                className="snippet-card request-card"
+                style={{ padding: "18px 22px", borderLeft: `8px solid ${statusStyle.bg}` }}
               >
                 <div
                   style={{
@@ -304,14 +363,25 @@ export default function RequestPage() {
                   </div>
 
                   {isAdmin && (
-                    <div style={{ minWidth: 150 }}>
-                      <CustomSelect
-                        label="Status"
-                        value={r.status}
-                        options={statusOptions}
-                        onChange={(val) => changeStatus(r.id, val as any)}
-                        icon="fa-sliders"
-                      />
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <div style={{ minWidth: 150 }}>
+                        <CustomSelect
+                          label="Status"
+                          value={r.status}
+                          options={statusOptions}
+                          onChange={(val) => changeStatus(r.id, val as any)}
+                          icon="fa-sliders"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="req-delete"
+                        onClick={() => removeRequest(r.id, r.codeName)}
+                        aria-label={`Hapus request ${r.codeName}`}
+                        title="Hapus request"
+                      >
+                        <i className="fa-solid fa-trash" />
+                      </button>
                     </div>
                   )}
                 </div>
