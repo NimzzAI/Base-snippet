@@ -84,7 +84,7 @@ Banner dan avatar kustom, badge Platform Owner & Verified Creator, bio, tech sta
 
 ```bash
 git clone https://github.com/NimzzAI/Base-snippet.git
-cd Base-snippet
+cd share-code-website
 cp .env.example .env.local
 npm install
 npm run dev
@@ -102,7 +102,7 @@ npm start
 ### Di Android (Termux)
 ```bash
 pkg install nodejs git
-git clone https://github.com/NimzzAI/Base-snippet.git && cd Base-snippet
+git clone https://github.com/NimzzAI/Base-snippet.git && cd share-code-website
 cp .env.example .env.local
 npm install
 npm run dev
