@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 :root {
   /* Clean Scratchpad & Indie-Maker Neo-Brutalism Palette */
   --bg-canvas: #d8d4c8;
@@ -72,8 +74,10 @@
   --fast: 0.1s ease;
   --base: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
-  --font: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
-  --font-display: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font: var(--font-sans);
+  --font-display: var(--font-sans);
 }
 
 [data-mode="night"],

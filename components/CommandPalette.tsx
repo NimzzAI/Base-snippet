@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Code } from "@/lib/types";
 import { useBookmarks } from "@/lib/bookmarks";
@@ -34,87 +34,89 @@ export default function CommandPalette({
       .catch(() => {});
   }, [isOpen]);
 
-  const quickActions = [
-    {
-      id: "nav-home",
-      title: "Ke Beranda Utama",
-      subtitle: "Halaman depan & Perkakas Developer",
-      icon: "fa-house",
-      badge: "HALAMAN",
-      action: () => router.push("/"),
-    },
-    {
-      id: "nav-search",
-      title: "Jelajahi Semua Snippet Kode",
-      subtitle: "Cari dan filter seluruh kode berdasarkan bahasa & kategori",
-      icon: "fa-magnifying-glass",
-      badge: "PENCARIAN",
-      action: () => router.push("/search"),
-    },
-    {
-      id: "nav-bookmarks",
-      title: `Koleksi Tersimpan (${bookmarkCount})`,
-      subtitle: "Buka daftar snippet favorit yang kamu simpan di browser",
-      icon: "fa-bookmark",
-      badge: "BOOKMARK",
-      action: () => router.push("/bookmarks"),
-    },
-    {
-      id: "nav-request",
-      title: "Request Modul / Script Baru",
-      subtitle: "Kirim permintaan fitur atau potongan kode ke Admin",
-      icon: "fa-clipboard-question",
-      badge: "REQUEST",
-      action: () => router.push("/request"),
-    },
-    {
-      id: "nav-api",
-      title: "Dokumentasi REST API Publik",
-      subtitle: "Coba endpoint JSON & raw code tanpa API key",
-      icon: "fa-plug",
-      badge: "API v1",
-      action: () => router.push("/api-docs"),
-    },
-    {
-      id: "nav-owner",
-      title: "Profil Developer & Tautan Resmi",
-      subtitle: "Informasi pengembang, tech stack, dan saluran komunitas",
-      icon: "fa-user-astronaut",
-      badge: "OWNER",
-      action: () => router.push("/owner"),
-    },
-  ];
+  const items = useMemo(() => {
+    const quickActions = [
+      {
+        id: "nav-home",
+        title: "Ke Beranda Utama",
+        subtitle: "Halaman depan & Indeks Snippet",
+        icon: "fa-house",
+        badge: "HALAMAN",
+        action: () => router.push("/"),
+      },
+      {
+        id: "nav-search",
+        title: "Jelajahi Semua Snippet Kode",
+        subtitle: "Cari dan filter seluruh kode berdasarkan bahasa & kategori",
+        icon: "fa-magnifying-glass",
+        badge: "PENCARIAN",
+        action: () => router.push("/search"),
+      },
+      {
+        id: "nav-bookmarks",
+        title: `Koleksi Tersimpan (${bookmarkCount})`,
+        subtitle: "Buka daftar snippet favorit yang kamu simpan di browser",
+        icon: "fa-bookmark",
+        badge: "BOOKMARK",
+        action: () => router.push("/bookmarks"),
+      },
+      {
+        id: "nav-request",
+        title: "Request Modul / Script Baru",
+        subtitle: "Kirim permintaan fitur atau potongan kode ke Admin",
+        icon: "fa-clipboard-question",
+        badge: "REQUEST",
+        action: () => router.push("/request"),
+      },
+      {
+        id: "nav-api",
+        title: "Dokumentasi REST API Publik",
+        subtitle: "Coba endpoint JSON & raw code tanpa API key",
+        icon: "fa-plug",
+        badge: "API v1",
+        action: () => router.push("/api-docs"),
+      },
+      {
+        id: "nav-owner",
+        title: "Profil Developer & Tautan Resmi",
+        subtitle: "Informasi pengembang, tech stack, dan saluran komunitas",
+        icon: "fa-user-astronaut",
+        badge: "OWNER",
+        action: () => router.push("/owner"),
+      },
+    ];
 
-  const q = query.trim().toLowerCase();
+    const q = query.trim().toLowerCase();
 
-  const matchingCodes = codes
-    .filter(
-      (c) =>
+    const matchingCodes = codes
+      .filter(
+        (c) =>
+          !q ||
+          c.title?.toLowerCase().includes(q) ||
+          c.language?.toLowerCase().includes(q) ||
+          c.category?.toLowerCase().includes(q) ||
+          c.tags?.some((t) => t.toLowerCase().includes(q))
+      )
+      .slice(0, 6)
+      .map((c) => ({
+        id: `code-${c.id}`,
+        title: c.title,
+        subtitle: `${c.category || "Tools"} • ${(c.language || "code").toUpperCase()}`,
+        icon: "fa-file-code",
+        badge: (c.language || "CODE").toUpperCase(),
+        action: () => router.push(`/code/${c.slug}`),
+      }));
+
+    const matchingActions = quickActions.filter(
+      (a) =>
         !q ||
-        c.title?.toLowerCase().includes(q) ||
-        c.language?.toLowerCase().includes(q) ||
-        c.category?.toLowerCase().includes(q) ||
-        c.tags?.some((t) => t.toLowerCase().includes(q))
-    )
-    .slice(0, 6)
-    .map((c) => ({
-      id: `code-${c.id}`,
-      title: c.title,
-      subtitle: `${c.category || "Tools"} • ${(c.language || "code").toUpperCase()}`,
-      icon: "fa-file-code",
-      badge: (c.language || "CODE").toUpperCase(),
-      action: () => router.push(`/code/${c.slug}`),
-    }));
+        a.title.toLowerCase().includes(q) ||
+        a.subtitle.toLowerCase().includes(q) ||
+        a.badge.toLowerCase().includes(q)
+    );
 
-  const matchingActions = quickActions.filter(
-    (a) =>
-      !q ||
-      a.title.toLowerCase().includes(q) ||
-      a.subtitle.toLowerCase().includes(q) ||
-      a.badge.toLowerCase().includes(q)
-  );
-
-  const items = [...matchingCodes, ...matchingActions];
+    return [...matchingCodes, ...matchingActions];
+  }, [codes, query, bookmarkCount, router]);
 
   useEffect(() => {
     setSelectedIndex(0);
