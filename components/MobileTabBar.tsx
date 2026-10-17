@@ -10,11 +10,11 @@ export default function MobileTabBar() {
   const tabs = [
     { href: "/", label: "Beranda", icon: "fa-solid fa-house" },
     { href: "/search", label: "Cari", icon: "fa-solid fa-magnifying-glass" },
+    { href: "/bookmarks", label: "Simpan", icon: "fa-solid fa-bookmark" },
     { href: "/request", label: "Request", icon: "fa-solid fa-clipboard-list" },
-    { href: "/owner", label: "Owner", icon: "fa-solid fa-user-astronaut" },
     ...(isAdmin
       ? [{ href: "/dashboard", label: "Panel", icon: "fa-solid fa-gauge" }]
-      : [{ href: "/admin/login", label: "Admin", icon: "fa-solid fa-shield-halved" }]),
+      : [{ href: "/owner", label: "Owner", icon: "fa-solid fa-user-astronaut" }]),
   ];
 
   const isActive = (href: string) =>

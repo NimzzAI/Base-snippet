@@ -6,6 +6,7 @@ import { Code, SUPPORTED_LANGUAGES } from "@/lib/types";
 import { useRealtimeCategories } from "@/lib/categories";
 import CodeCard from "@/components/CodeCard";
 import CustomSelect from "@/components/CustomSelect";
+import { StitchedLoader } from "@/components/FieldJournalDecor";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -103,25 +104,29 @@ function SearchContent() {
   ];
 
   return (
-    <div style={{ paddingTop: 10 }}>
+    <div style={{ paddingTop: 14 }}>
       {/* Search Header */}
       <div className="section-head" style={{ marginBottom: 16 }}>
         <div>
           <h2>
-            <i className="fa-solid fa-magnifying-glass" /> Jelajahi Snippet Kode
+            <i className="fa-solid fa-compass" style={{ color: "var(--accent)" }} />
+            Indeks & <span className="text-laidback">Katalog Snippet</span>
           </h2>
           <p>
             {loading
-              ? "Memuat koleksi kode..."
+              ? "Menyeduh indeks catatan kode..."
               : allCodes.length === 0
-              ? "Koleksi kode masih kosong"
-              : `Menampilkan ${results.length} dari ${allCodes.length} snippet kode aktif.`}
+              ? "Koleksi catatan kode masih kosong"
+              : `Menampilkan ${results.length} dari ${allCodes.length} catatan kode di buku lapangan.`}
           </p>
         </div>
+        <span className="camp-stamp">INDEX // SEARCH</span>
       </div>
 
-      {/* Filter Bar */}
-      <div className="filter-bar" style={{ marginBottom: 20 }}>
+      {/* Filter Bar with Washi Tape */}
+      <div className="filter-bar" style={{ position: "relative", marginBottom: 24, paddingTop: 22 }}>
+        <div className="washi-tape" style={{ width: 110, height: 20, top: -10 }} />
+
         <div className="search-bar" style={{ flex: 1, minWidth: 260 }}>
           <i className="fa-solid fa-magnifying-glass" />
           <input
@@ -139,7 +144,7 @@ function SearchContent() {
                 border: "none",
                 cursor: "pointer",
                 padding: "0 6px",
-                color: "#888",
+                color: "var(--ink-muted)",
               }}
             >
               <i className="fa-solid fa-xmark" />
@@ -193,15 +198,8 @@ function SearchContent() {
 
       {/* Grid Content */}
       {loading ? (
-        <div className="snippets-grid">
-          {Array(6)
-            .fill(0)
-            .map((_, i) => (
-              <div key={i} className="skeleton skeleton-card" />
-            ))}
-        </div>
+        <StitchedLoader label="Menyeduh Indeks Katalog Kode..." code="[SYS.BUFFERING]" count={6} />
       ) : allCodes.length === 0 ? (
-        /* Database is genuinely empty */
         <div className="empty-state">
           <i className="fa-solid fa-folder-open" />
           <h3>Database Kode Masih Kosong</h3>
@@ -219,7 +217,6 @@ function SearchContent() {
           </div>
         </div>
       ) : results.length === 0 ? (
-        /* Filter produced no matching results */
         <div className="empty-state">
           <i className="fa-solid fa-face-sad-tear" />
           <h3>Tidak Ada Hasil yang Cocok</h3>
@@ -239,7 +236,7 @@ function SearchContent() {
           </div>
         </div>
       ) : (
-        <div className="snippets-grid">
+        <div className="snippets-grid" style={{ paddingTop: 8 }}>
           {results.map((code) => (
             <CodeCard key={code.id} code={code} />
           ))}
@@ -251,7 +248,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="skeleton" style={{ height: 260 }} />}>
+    <Suspense fallback={<StitchedLoader label="Menyiapkan Pencarian..." code="[SEARCH.INIT]" count={3} />}>
       <SearchContent />
     </Suspense>
   );

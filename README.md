@@ -4,64 +4,57 @@
 
 # ⚡ Nimzz Code
 
-Platform berbagi snippet, script otomasi, modul bot, dan project code untuk developer. Dibuat dengan gaya **Neo-Brutalism** yang responsif dan mobile-first, dengan panel admin untuk mengelola semuanya dari HP.
+Platform berbagi snippet, script otomasi, modul bot, dan project code untuk developer. Dirancang dengan palet warna hangat yang nyaman di mata (**Warm Paper & Tactile Print Edition**), responsif, mobile-first, mendukung **Mode Terang/Gelap**, serta dilengkapi fitur pencarian cepat `Ctrl+K`, Bookmark koleksi kode, dan panel admin lengkap.
 
 - Demo: https://base-snippet.vercel.app
-- Versi: 2.0.0
+- Versi: 2.5.0
 - Framework: Next.js 14.2 (App Router) + TypeScript
 
 ---
 
 ## 📚 Daftar Isi
 
-1. [Fitur](#-fitur)
-2. [Tech Stack](#️-tech-stack)
-3. [Instalasi Lokal](#-instalasi-lokal)
-4. [Environment Variables](#️-environment-variables)
-5. [Deploy ke Vercel + Supabase](#-deploy-ke-vercel--supabase)
-6. [Cara Kerja Login Admin](#-cara-kerja-login-admin)
-7. [Share, Thumbnail, dan OG Image](#-share-thumbnail-dan-og-image)
-8. [API Publik](#-api-publik)
-9. [Upload Gambar](#-upload-gambar)
-10. [Struktur Direktori](#-struktur-direktori)
-11. [Catatan Perubahan](#-catatan-perubahan)
-12. [Troubleshooting](#-troubleshooting)
+1. [Fitur Utama](#-fitur-utama)
+2. [Fitur Baru v2.5](#-fitur-baru-v25)
+3. [Tech Stack](#️-tech-stack)
+4. [Instalasi Lokal](#-instalasi-lokal)
+5. [Environment Variables](#️-environment-variables)
+6. [Deploy ke Vercel + Supabase](#-deploy-ke-vercel--supabase)
+7. [Cara Kerja Login Admin](#-cara-kerja-login-admin)
+8. [Share, Thumbnail, dan OG Image](#-share-thumbnail-dan-og-image)
+9. [API Publik](#-api-publik)
+10. [Upload Gambar](#-upload-gambar)
+11. [Struktur Direktori](#-struktur-direktori)
+12. [Catatan Perubahan](#-catatan-perubahan)
+13. [Troubleshooting](#-troubleshooting)
 
 ---
 
-## 🚀 Fitur
+## 🚀 Fitur Utama
 
 ### Snippet & Viewer
 - **Viewer ala VS Code (Dark+)**: syntax highlighting, nomor baris, tab file, breadcrumb, status bar (baris/kolom, spasi, UTF-8, bahasa).
-- **Aksi cepat**: Salin Kode, Download File (ekstensi mengikuti bahasa), View Raw, Word Wrap, Embed, dan Share.
-- **Kartu snippet** dengan thumbnail, preview kode yang terpotong halus, tag, jumlah views, dan tombol Preview / Detail / Salin.
+- **Aksi cepat**: Salin Kode, **Bookmark / Simpan**, **Salin Markdown**, Download File (ekstensi mengikuti bahasa), View Raw, Word Wrap, Embed, dan Share.
+- **Kartu snippet** dengan washi tape cetak, thumbnail, preview kode yang terpotong halus, tombol Bookmark instan, tag, jumlah views, dan tombol Preview / Detail / Salin.
 - **Quick Preview**: modal yang dirender lewat portal ke `<body>`, tampil sebagai bottom sheet di HP dan dialog di desktop.
 - **Pencarian & filter** berdasarkan kata kunci, kategori, bahasa, dan tag.
 - **Kategori dinamis** yang bisa ditambah atau dihapus admin.
 - **Request kode**: pengunjung bisa mengirim permintaan modul, admin melihatnya di panel.
 
-### Share
-- Tombol **Share** memakai Web Share API. Teks yang dibagikan berisi judul, **kategori**, bahasa, deskripsi singkat, lalu URL, jadi bukan URL saja.
-- Fallback otomatis ke clipboard bila browser tidak mendukung Web Share API.
-- Link yang dibagikan punya preview (Open Graph + Twitter Card) berisi judul, kategori, bahasa, dan gambar.
+---
 
-### Panel Admin
-- Ringkasan (total snippet, views, request, kategori), kelola kode, kategori, dan request.
-- **Kustomisasi profil owner**: nama, username, bio, avatar, banner, dan tautan sosial (WhatsApp, GitHub, Telegram, TikTok). Perubahan yang belum disimpan tidak ditimpa oleh sinkronisasi otomatis.
-- Mode maintenance dengan `MaintenanceGuard`.
-- Notifikasi Telegram untuk request dan kode baru (opsional).
+## ✨ Fitur Baru v2.5
 
-### Halaman Owner (`/owner`)
-Banner dan avatar kustom, badge Platform Owner & Verified Creator, bio, tech stack, serta kartu tautan resmi.
-
-### Keamanan
-- Login username + password tanpa OAuth pihak ketiga.
-- Batas **5 percobaan gagal**, lalu lockout **15 menit** berdasarkan kombinasi IP dan Device ID.
-- Password di-hash dengan **bcrypt**, dibandingkan secara constant-time.
-- Session berupa token **HMAC SHA-256** di cookie `httpOnly`.
-- Semua endpoint tulis (`POST/PUT/DELETE`) memeriksa session admin di server.
-- `PUT /api/codes/[slug]` hanya menerima field `title`, `description`, `category`, `language`, `tags`, `thumbnail`, dan `code`. Field seperti `id`, `slug`, `views`, dan author tidak bisa ditimpa dari luar.
-- Input dibersihkan dari tag HTML berbahaya (`lib/security.ts`).
+1. **Command Palette (`Ctrl+K` / `⌘K`)**
+   - Tekan `Ctrl+K` dari halaman mana saja atau klik tombol `Ctrl+K` di Topbar untuk mencari snippet secara instan, melompat ke halaman utama, atau membuka koleksi tersimpan dengan navigasi keyboard (`↑`/`↓`/`Enter`/`Esc`).
+2. **Koleksi Bookmark Snippet (`/bookmarks`)**
+   - Simpan snippet favorit ke browser sekali klik tanpa perlu login.
+   - Halaman khusus `/bookmarks` dilengkapi pencarian lokal, penghitung real-time di Topbar & Sidebar, serta fitur **Export JSON** untuk mengunduh seluruh koleksi kode tersimpan sebagai cadangan.
+3. **Salin sebagai Markdown (`Salin Markdown`)**
+   - Di halaman detail snippet (`/code/[slug]`), tersedia tombol **Salin Markdown** untuk menyalin judul, metadata kategori/bahasa, dan blok kode berformat Markdown siap tempel ke dokumentasi atau diskusi.
+4. **Palet Warna Hangat + Mode Terang & Gelap (`TERANG` / `GELAP`)**
+   - Palet warna kertas hangat (`#f7f3e8`, `#2c4a3e`, `#e26334`, `#f59e0b`) yang nyaman di mata serta sakelar mode malam (`#182232`) di Topbar yang tersimpan di `localStorage`.
+   - Menggunakan kombinasi 3 peran tipografi dari `next/font/google`: `Fredoka` (`--font-display`), `Zen Maru Gothic` (`--font-sans`), dan `JetBrains Mono` (`--font-mono`).
 
 ---
 
@@ -70,12 +63,13 @@ Banner dan avatar kustom, badge Platform Owner & Verified Creator, bio, tech sta
 | Bagian | Teknologi |
 | :--- | :--- |
 | Framework | Next.js 14.2 (App Router), React, TypeScript |
-| Styling | CSS kustom Neo-Brutalism (`app/globals.css`) |
+| Styling | CSS Neo-Brutalism & Warm Tactile Print (`app/globals.css`) |
+| Tipografi | `next/font/google` (`Fredoka`, `Zen_Maru_Gothic`, `JetBrains_Mono`) |
 | Data | Supabase (REST) di produksi, file JSON di `data/` saat lokal |
 | Highlight | `react-syntax-highlighter` (Prism, vscDarkPlus) |
 | Keamanan | `bcryptjs`, HMAC SHA-256, rate limiter IP + Device ID |
 | Upload gambar | AceImg (tanpa API key) |
-| Ikon | FontAwesome |
+| Ikon | FontAwesome 6 |
 | Deploy | Vercel |
 
 ---
@@ -158,12 +152,6 @@ Aturan di sisi client supaya tidak ada "tiba-tiba disuruh login":
 - Hanya jawaban resmi server yang dapat membuat status menjadi logout. Error jaringan atau 5xx tidak mengubah status login.
 - Ada penanda ringan `nimzz_admin_hint` di localStorage untuk mengurangi kedipan UI. Penanda ini hanya untuk tampilan. Hak akses tetap diputuskan server lewat cookie.
 
-### Sinkronisasi profil owner
-- Profil diambil dari `/api/admin/profile` secara berkala.
-- State hanya diperbarui bila isi profil di server **benar-benar berubah**.
-- Form di dashboard diisi satu kali dari data server, tidak ditimpa oleh polling, sehingga isian yang belum disimpan tidak hilang.
-- Bila server gagal dihubungi, tampilan tetap memakai profil terakhir dan tidak kembali ke default.
-
 ---
 
 ## 🖼️ Share, Thumbnail, dan OG Image
@@ -174,30 +162,11 @@ Aturan di sisi client supaya tidak ada "tiba-tiba disuruh login":
 - Hanya alamat `http(s)://` atau path lokal yang diterima (`validThumbnail` di `lib/code-utils.ts`). Gambar yang gagal dimuat otomatis disembunyikan.
 
 ### Metadata link share
-Metadata halaman detail dibuat di `app/code/[slug]/layout.tsx` (server component), karena `page.tsx` adalah client component dan tidak bisa mengekspor `generateMetadata`. Isinya:
-
+Metadata halaman detail dibuat di `app/code/[slug]/layout.tsx` (server component):
 - **Judul**: `Judul Kode • Kategori`
 - **Deskripsi**: `Kategori | Bahasa | deskripsi singkat`
 - **Gambar utama (`og:image`)**: thumbnail snippet. Bila kosong, memakai gambar otomatis `/api/og/[slug]`.
-- **Gambar cadangan**: `/og-image.png` milik situs, ditempatkan setelah gambar utama.
-
-### Gambar OG otomatis
-`GET /api/og/[slug]` membuat gambar 1200×630 berisi kategori, bahasa, judul, beberapa baris awal kode, nama situs, dan nama author. Dipakai bila snippet tidak punya thumbnail.
-
-> Preview di WhatsApp dan Telegram di-cache lama oleh platformnya. Saat menguji, pakai snippet baru atau tambahkan parameter berbeda di URL.
-
-### Teks Share
-Dibuat oleh `buildShareText` di `lib/code-utils.ts`:
-
-```text
-📦 Judul Kode
-📁 Kategori: Tools  •  💻 javascript
-
-Deskripsi singkat...
-
-Lihat kodenya di Nimzz Code:
-https://base-snippet.vercel.app/code/slug-kode
-```
+- **Gambar cadangan**: `/og-image.png` milik situs.
 
 ---
 
@@ -214,30 +183,6 @@ Dokumentasi interaktif tersedia di `/api-docs`.
 | GET | `/embed/:slug` | Widget iframe untuk disematkan |
 | GET | `/sitemap.xml`, `/robots.txt` | Dibuat otomatis dari data |
 
-Endpoint admin (butuh cookie session):
-
-| Method | Endpoint | Keterangan |
-| :--- | :--- | :--- |
-| POST | `/api/codes` | Publish snippet baru |
-| PUT | `/api/codes/:slug` | Ubah snippet (field terbatas, lihat bagian Keamanan) |
-| DELETE | `/api/codes/:slug` | Hapus snippet |
-| GET/POST | `/api/admin/profile` | Baca (publik) dan simpan (admin) profil owner |
-| POST | `/api/upload` | Upload gambar |
-
----
-
-## 📤 Upload Gambar
-
-Avatar, banner, dan thumbnail diunggah lewat AceImg, gratis tanpa API key. Hanya PNG dan JPG, dan gambar otomatis dikecilkan di browser sebelum dikirim dengan batas sisi terpanjang berikut:
-
-| Jenis | Maks. sisi | Maks. ukuran |
-| :--- | :---: | :---: |
-| Avatar | 1024px | 3 MB |
-| Thumbnail | 1920px | 5 MB |
-| Banner | 2400px | 5 MB |
-
-Pengaturan ada di `lib/upload-client.ts` (`LIMITS`).
-
 ---
 
 ## 📁 Struktur Direktori
@@ -245,47 +190,40 @@ Pengaturan ada di `lib/upload-client.ts` (`LIMITS`).
 ```text
 ├── app/
 │   ├── admin/login/            # Login administrator
-│   ├── api/
-│   │   ├── admin/              # login, logout, session, profile
-│   │   ├── categories/         # CRUD kategori
-│   │   ├── codes/              # CRUD snippet (+ [slug])
-│   │   ├── og/[slug]/          # Gambar OG otomatis
-│   │   ├── requests/           # Request kode dari pengunjung
-│   │   ├── telegram/           # Notifikasi dan webhook Telegram
-│   │   ├── upload/             # Upload gambar (AceImg)
-│   │   ├── v1/snippets/        # API publik
-│   │   └── internal-test/      # Test runner internal
+│   ├── api/                    # Endpoint admin, kode, kategori, OG, Telegram, API v1
 │   ├── api-docs/               # Dokumentasi API interaktif
+│   ├── bookmarks/              # Halaman koleksi snippet tersimpan + Export JSON
 │   ├── category/[name]/        # Daftar kode per kategori
-│   ├── code/[slug]/            # Detail kode
-│   │   ├── layout.tsx          # Metadata share (OG/Twitter)
-│   │   └── page.tsx            # Halaman detail
+│   ├── code/[slug]/            # Detail kode + layout metadata OG
 │   ├── dashboard/              # Panel admin
 │   ├── edit/[id]/              # Edit snippet
 │   ├── embed/[slug]/           # Widget embed
-│   ├── owner/                  # Profil developer
+│   ├── owner/                  # Profil developer (Polaroid ID & tautan resmi)
 │   ├── profile/[username]/     # Profil publik + metadata
 │   ├── publish/                # Form publish snippet
 │   ├── request/                # Form request kode
-│   ├── search/                 # Pencarian
+│   ├── search/                 # Pencarian & filter
 │   ├── settings/               # Pengaturan admin
-│   ├── globals.css             # Seluruh styling
-│   ├── layout.tsx              # Root layout + metadata situs
+│   ├── globals.css             # Sistem token CSS hangat & Tactile Print styling
+│   ├── layout.tsx              # Root layout + konfigurasi 3 font Google
 │   └── page.tsx                # Beranda
 ├── components/
 │   ├── AppShell.tsx            # Wrapper layout
-│   ├── CodeCard.tsx            # Kartu snippet
+│   ├── CodeCard.tsx            # Kartu snippet + tombol Bookmark
 │   ├── CodePreviewModal.tsx    # Quick Preview (portal)
+│   ├── CommandPalette.tsx      # Modal pencarian cepat Ctrl+K
 │   ├── CustomSelect.tsx
+│   ├── FieldJournalDecor.tsx   # ParallaxHeaderBanner (60fps) & StitchedLoader
 │   ├── MaintenanceGuard.tsx
 │   ├── MobileTabBar.tsx        # Tab bar bawah (mobile)
 │   ├── Sidebar.tsx
 │   ├── ToastProvider.tsx
-│   ├── Topbar.tsx
+│   ├── Topbar.tsx              # Search, Ctrl+K, Bookmark badge, & Dark Mode toggle
 │   └── VSCodeViewer.tsx        # Viewer ala VS Code
 ├── lib/
 │   ├── auth-context.tsx        # Auth + profil di sisi client
 │   ├── auth-server.ts          # Session, bcrypt, HMAC
+│   ├── bookmarks.ts            # State & penyimpanan koleksi Bookmark di browser
 │   ├── code-utils.ts           # Helper share, thumbnail, ekstensi file
 │   ├── config.ts               # Konfigurasi terpusat
 │   ├── json-db.ts, store.ts    # Akses data (Supabase / JSON lokal)
@@ -296,8 +234,6 @@ Pengaturan ada di `lib/upload-client.ts` (`LIMITS`).
 ├── public/                     # Ikon, og-image.png, manifest
 ├── data/                       # Data lokal (hanya saat tanpa Supabase)
 ├── supabase.sql                # Skema tabel Supabase
-├── settings.js                 # Konfigurasi runtime
-├── DEPLOY.md                   # Panduan Telegram bot
 └── .env.example
 ```
 
@@ -305,30 +241,11 @@ Pengaturan ada di `lib/upload-client.ts` (`LIMITS`).
 
 ## 📝 Catatan Perubahan
 
-### Perbaikan terbaru
-- **Profil owner tidak lagi kembali ke default** saat belum disimpan. Form tidak ditimpa polling, dan state hanya berubah bila data server berubah.
-- **Admin tidak lagi tiba-tiba diminta login** saat refresh. Halaman admin menunggu pengecekan session selesai, dan error jaringan tidak dianggap logout.
-- **Thumbnail tampil** di kartu, detail (paling atas), dan Quick Preview.
-- **Preview kode dirapikan**: modal lewat portal, bottom sheet di HP, preview kartu dengan efek memudar.
-- **Share menyertakan kategori**, bahasa, dan deskripsi, bukan hanya URL.
-- **Metadata share berfungsi** lewat `layout.tsx` (sebelumnya `metadata.ts` tidak pernah dibaca Next.js), dengan OG image otomatis.
-- **Avatar diperbesar** di dashboard (112px) dan halaman owner (132px).
-- **Halaman Request**: dropdown status tidak lagi terpotong kartu, ada filter status (Semua/Baru/Dikerjakan/Selesai/Ditolak) dengan jumlahnya, aksen warna status di tepi kartu, hitungan karakter deskripsi, dan tombol hapus request untuk admin.
-- **Ekstensi file download** benar untuk semua bahasa.
-- **Tampilan lebih HD**: `public/og-image.png` dibuat ulang (2400×1260, PNG asli; sebelumnya JPEG 736×414 yang salah ekstensi), batas upload dinaikkan (avatar 1024px, thumbnail 1920px, banner 2400px, kualitas 0.95), `next/image` memakai kualitas 90-95 dengan format AVIF/WebP, dan ikon 192/512 ditambahkan ke metadata.
-- **`PUT /api/codes/[slug]`** hanya menerima field yang boleh diubah.
-
----
-
-## 🧯 Troubleshooting
-
-| Masalah | Penyebab umum | Solusi |
-| :--- | :--- | :--- |
-| Simpan profil gagal atau data kembali awal di Vercel | Supabase belum diisi | Isi `NEXT_PUBLIC_SUPABASE_URL` dan `SUPABASE_SERVICE_ROLE_KEY`, jalankan `supabase.sql`, redeploy |
-| Preview link tidak berubah di WhatsApp | Cache platform | Tes dengan snippet baru, atau tunggu cache habis |
-| Thumbnail tidak tampil | URL bukan `http(s)` atau gambar diblokir hotlink | Upload lewat tombol upload di form |
-| Upload gagal | Format selain PNG/JPG atau AceImg sedang down | Pakai PNG/JPG, atau ganti `ACEIMG_API_URL` |
-| Gambar `/api/og/...` kosong | Slug tidak ditemukan | Pastikan slug ada di data |
+### Pembaruan v2.5.0
+- **Palet Warna Hangat & Mode Terang/Gelap**: Menggunakan kombinasi warna kertas hangat (`#f7f3e8`, `#2c4a3e`, `#e26334`, `#f59e0b`) yang nyaman di mata tanpa ornamen kemah, ditambah sakelar Mode Terang/Gelap di Topbar.
+- **Command Palette (`Ctrl+K`)**: Pencarian dan navigasi cepat ke seluruh snippet serta halaman menggunakan pintasan keyboard.
+- **Fitur Bookmark (`/bookmarks`)**: Simpan snippet favorit tanpa login dan unduh cadangan koleksi dalam format `.json`.
+- **Salin Markdown**: Ekspor cepat snippet beserta informasi bahasanya ke format blok kode Markdown.
 
 ---
 

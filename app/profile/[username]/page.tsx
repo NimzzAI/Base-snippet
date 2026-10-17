@@ -5,6 +5,7 @@ import { NimzzUser, Code } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { config } from "@/lib/config";
 import CodeCard from "@/components/CodeCard";
+import { ParallaxCampBanner, StitchedLoader } from "@/components/FieldJournalDecor";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -58,9 +59,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <div className="skeleton" style={{ height: 180 }} />
-        <div className="skeleton" style={{ height: 100 }} />
+      <div style={{ maxWidth: 960, margin: "0 auto", paddingTop: 14 }}>
+        <StitchedLoader label={`Memuat Profil @${uName}...`} code="[PROFILE.SYNC]" count={2} />
       </div>
     );
   }
@@ -98,74 +98,128 @@ export default function ProfilePage() {
   const socials = activeProfile.socials || adminConfig.socials || {};
 
   return (
-    <div style={{ maxWidth: 960, margin: "0 auto", paddingTop: 10 }}>
-      {/* Banner */}
-      <div className="profile-banner-wrap">
-        {activeProfile.banner && (
-          <Image
- quality={95}
-            src={activeProfile.banner}
-            alt="Banner"
-            fill
-            unoptimized={activeProfile.banner.startsWith("data:")}
-            style={{ objectFit: "cover" }}
-          />
-        )}
-        <div className="profile-avatar-pin">
-          <div className="avatar-lg" style={{ background: "var(--yellow)" }}>
-            {activeProfile.photoURL ? (
-              <Image
- quality={95}
-                src={activeProfile.photoURL}
-                alt={activeProfile.displayName}
-                width={80}
-                height={80}
-                unoptimized={activeProfile.photoURL.startsWith("data:")}
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
-              />
-            ) : (
-              <span>{(activeProfile.displayName || "A")[0]}</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Info Card */}
+    <div style={{ maxWidth: 960, margin: "0 auto", paddingTop: 14 }}>
+      {/* Profile Card with Washi Tape, 60fps Parallax Banner, and Tilted Polaroid Frame */}
       <div
         style={{
+          position: "relative",
           background: "var(--surface)",
           border: "var(--border-w) solid var(--border)",
           borderRadius: "var(--radius)",
           boxShadow: "var(--shadow)",
-          padding: "24px",
           marginBottom: "28px",
+          overflow: "visible",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <h1 style={{ fontSize: "1.45rem", fontWeight: 800 }}>{activeProfile.displayName}</h1>
-              <span className="category-badge" style={{ background: "var(--yellow)" }}>
-                <i className="fa-solid fa-crown" style={{ fontSize: "0.68rem" }} />
-                Admin
+        <div className="washi-tape" />
+
+        <div style={{ borderRadius: "calc(var(--radius) - 3px)", overflow: "hidden" }}>
+          <ParallaxCampBanner
+            imageUrl={activeProfile.banner || undefined}
+            height={200}
+            stampLeft={`USER.LOG // @${activeProfile.username.toUpperCase()}`}
+            stampRight={`${codes.length} SNIPPET • ${totalViews} DIBACA`}
+          />
+
+          <div style={{ padding: "0 24px 24px", position: "relative" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+                flexWrap: "wrap",
+                gap: 12,
+                marginTop: -56,
+                marginBottom: 16,
+                position: "relative",
+                zIndex: 10,
+              }}
+            >
+              {/* Tilted Polaroid Frame */}
+              <div className="polaroid-frame">
+                <div
+                  style={{
+                    width: 104,
+                    height: 104,
+                    borderRadius: 8,
+                    border: "2px solid var(--border)",
+                    background: "var(--surface-alt)",
+                    overflow: "hidden",
+                  }}
+                >
+                  {activeProfile.photoURL ? (
+                    <Image
+                      quality={95}
+                      src={activeProfile.photoURL}
+                      alt={activeProfile.displayName}
+                      width={208}
+                      height={208}
+                      unoptimized={activeProfile.photoURL.startsWith("data:")}
+                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "2.2rem",
+                        fontWeight: 800,
+                      }}
+                    >
+                      {(activeProfile.displayName || "A")[0]}
+                    </div>
+                  )}
+                </div>
+                <span className="polaroid-caption">@{activeProfile.username}</span>
+              </div>
+
+              {isAdmin && isMatchAdmin && (
+                <Link href="/dashboard" className="btn btn-sm btn-yellow">
+                  <i className="fa-solid fa-pen" /> Edit Profil
+                </Link>
+              )}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+              <h1 style={{ fontSize: "1.55rem", fontWeight: 700 }}>
+                <span className="text-laidback">{activeProfile.displayName}</span>
+              </h1>
+              <span className="inline-stamp-pill">
+                <i className="fa-solid fa-crown" /> ADMIN
               </span>
             </div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: 8, fontWeight: 700 }}>
+
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.85rem",
+                color: "var(--ink-muted)",
+                marginBottom: 10,
+                fontWeight: 700,
+              }}
+            >
               @{activeProfile.username}
             </div>
+
             {activeProfile.bio && (
-              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: 600, maxWidth: 620, lineHeight: 1.5, marginBottom: 12 }}>
+              <p
+                style={{
+                  color: "var(--ink)",
+                  fontSize: "0.92rem",
+                  fontWeight: 600,
+                  maxWidth: 640,
+                  lineHeight: 1.55,
+                  marginBottom: 14,
+                }}
+              >
                 {activeProfile.bio}
               </p>
             )}
+
+            <hr className="stitch-divider" />
 
             {/* Social Links */}
             <div className="socials-cluster">
@@ -206,45 +260,30 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-
-          {isAdmin && (
-            <Link href="/dashboard" className="btn btn-sm btn-yellow">
-              <i className="fa-solid fa-pen" /> Edit Banner / Avatar
-            </Link>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="stats-row" style={{ marginTop: 22, marginBottom: 0 }}>
-          <div className="stat-card" style={{ padding: "14px 18px" }}>
-            <div className="num" style={{ fontSize: "1.4rem" }}>{codes.length}</div>
-            <div className="lbl">Code Dipublish</div>
-          </div>
-          <div className="stat-card" style={{ padding: "14px 18px" }}>
-            <div className="num" style={{ fontSize: "1.4rem", color: "var(--success)" }}>{totalViews}</div>
-            <div className="lbl">Total Views</div>
-          </div>
         </div>
       </div>
 
-      {/* Code List */}
-      <div className="section-head" style={{ marginBottom: 18 }}>
-        <h2>
-          <i className="fa-solid fa-code" style={{ color: "var(--blue)" }} />
-          Code oleh {activeProfile.displayName}
-        </h2>
+      {/* Snippets by User */}
+      <div className="section-head" style={{ marginBottom: 16 }}>
+        <div>
+          <h2>
+            <i className="fa-solid fa-code" style={{ color: "var(--accent)" }} />
+            Catatan Kode oleh <span className="text-laidback">{activeProfile.displayName}</span>
+          </h2>
+          <p>{codes.length} snippet dipublikasikan</p>
+        </div>
       </div>
 
       {codes.length === 0 ? (
         <div className="empty-state">
-          <i className="fa-solid fa-inbox" />
-          <h3>Belum Ada Code</h3>
-          <p>Belum ada code yang dipublikasikan oleh akun ini.</p>
+          <i className="fa-solid fa-folder-open" />
+          <h3>Belum Ada Kode</h3>
+          <p>Pengguna ini belum mempublikasikan snippet kode.</p>
         </div>
       ) : (
-        <div className="snippets-grid">
-          {codes.map((code) => (
-            <CodeCard key={code.id} code={code} />
+        <div className="snippets-grid" style={{ paddingTop: 8 }}>
+          {codes.map((c) => (
+            <CodeCard key={c.id} code={c} />
           ))}
         </div>
       )}

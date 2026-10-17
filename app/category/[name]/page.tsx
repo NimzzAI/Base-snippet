@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { Code } from "@/lib/types";
 import CodeCard from "@/components/CodeCard";
 import CustomSelect from "@/components/CustomSelect";
+import { StitchedLoader } from "@/components/FieldJournalDecor";
 import Link from "next/link";
 
 export default function CategoryPage() {
@@ -48,23 +49,25 @@ export default function CategoryPage() {
   ];
 
   return (
-    <div style={{ paddingTop: 10 }}>
+    <div style={{ paddingTop: 14 }}>
       {/* Category Header */}
       <div className="section-head" style={{ marginBottom: 20 }}>
         <div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
             <Link href="/search" className="btn btn-sm btn-outline">
               <i className="fa-solid fa-arrow-left" /> Semua Kategori
             </Link>
-            <span className="category-badge" style={{ fontSize: "0.85rem", padding: "4px 12px" }}>
-              <i className="fa-solid fa-folder-open" style={{ marginRight: 6 }} />
-              {catName}
+            <span className="camp-stamp">
+              <i className="fa-solid fa-folder-open" style={{ color: "var(--accent)", marginRight: 6 }} />
+              BAB // {catName.toUpperCase()}
             </span>
           </div>
-          <h2>Koleksi Kode: {catName}</h2>
+          <h2>
+            Koleksi Kode: <span className="text-laidback">{catName}</span>
+          </h2>
           <p>
             {loading
-              ? "Memuat koleksi kode..."
+              ? "Menyeduh koleksi kode..."
               : `Ditemukan ${codes.length} snippet kode dalam kategori ini.`}
           </p>
         </div>
@@ -82,13 +85,7 @@ export default function CategoryPage() {
       </div>
 
       {loading ? (
-        <div className="snippets-grid">
-          {Array(4)
-            .fill(0)
-            .map((_, i) => (
-              <div key={i} className="skeleton skeleton-card" />
-            ))}
-        </div>
+        <StitchedLoader label={`Menyeduh Kategori ${catName}...`} code="[CAT.BUFFERING]" count={4} />
       ) : codes.length === 0 ? (
         <div className="empty-state">
           <i className="fa-solid fa-folder-open" />
@@ -106,7 +103,7 @@ export default function CategoryPage() {
           </div>
         </div>
       ) : (
-        <div className="snippets-grid">
+        <div className="snippets-grid" style={{ paddingTop: 8 }}>
           {sorted.map((code) => (
             <CodeCard key={code.id} code={code} />
           ))}

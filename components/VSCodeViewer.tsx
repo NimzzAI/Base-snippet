@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { toast } from "./ToastProvider";
 
@@ -17,7 +17,7 @@ const vscDarkPlusTheme: { [key: string]: React.CSSProperties } = {
     whiteSpace: "pre",
     wordSpacing: "normal",
     wordBreak: "normal",
-    lineHeight: "1.7",
+    lineHeight: "1.65",
     MozTabSize: "2",
     OTabSize: "2",
     tabSize: 2,
@@ -25,7 +25,7 @@ const vscDarkPlusTheme: { [key: string]: React.CSSProperties } = {
     MozHyphens: "none",
     msHyphens: "none",
     hyphens: "none",
-    padding: "16px 14px",
+    padding: "14px 12px",
     margin: 0,
     overflow: "auto",
     background: "#181818",
@@ -38,7 +38,7 @@ const vscDarkPlusTheme: { [key: string]: React.CSSProperties } = {
     whiteSpace: "pre",
     wordSpacing: "normal",
     wordBreak: "normal",
-    lineHeight: "1.7",
+    lineHeight: "1.65",
     MozTabSize: "2",
     OTabSize: "2",
     tabSize: 2,
@@ -95,7 +95,6 @@ interface VSCodeViewerProps {
   onDownloadClick?: () => void;
 }
 
-// Icon helper per language
 function getLangIcon(lang: string = ""): { icon: string; color: string; label: string; ext: string } {
   const l = (lang || "").toLowerCase().trim();
   if (l.includes("javascript") || l === "js") return { icon: "fa-brands fa-js", color: "#F7DF1E", label: "JavaScript", ext: "js" };
@@ -110,10 +109,9 @@ function getLangIcon(lang: string = ""): { icon: string; color: string; label: s
   if (l.includes("bash") || l.includes("sh") || l.includes("shell")) return { icon: "fa-solid fa-terminal", color: "#4EAA25", label: "Bash", ext: "sh" };
   if (l.includes("sql")) return { icon: "fa-solid fa-database", color: "#00758F", label: "SQL", ext: "sql" };
   if (l.includes("react") || l === "jsx" || l === "tsx") return { icon: "fa-brands fa-react", color: "#61DAFB", label: "React", ext: "tsx" };
-  return { icon: "fa-solid fa-file-code", color: "#00ffa4", label: lang || "Code", ext: "txt" };
+  return { icon: "fa-solid fa-file-code", color: "#f59e0b", label: lang || "Code", ext: "txt" };
 }
 
-// Map language to Prism syntax support
 function normalizePrismLang(lang: string = ""): string {
   const l = (lang || "").toLowerCase().trim();
   if (l.includes("typescript") || l === "ts") return "typescript";
@@ -143,6 +141,22 @@ export default function VSCodeViewer({
 }: VSCodeViewerProps) {
   const [copied, setCopied] = useState(false);
   const [wordWrap, setWordWrap] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Auto-detect mobile screen to optimize gutter & default word-wrap
+  useEffect(() => {
+    const checkViewport = () => {
+      const mobile = window.innerWidth <= 640;
+      setIsMobile(mobile);
+    };
+    checkViewport();
+    if (window.innerWidth <= 640) {
+      setWordWrap(true);
+    }
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
+  }, []);
 
   const cleanCode = code || "// No code available";
   const lines = cleanCode.split("\n");
@@ -173,20 +187,31 @@ export default function VSCodeViewer({
     toast(`Mengunduh ${displayFilename}`, "info");
   };
 
-  return (
-    <div
-      className="vscode-container"
-      style={{
+  const containerStyles: React.CSSProperties = isFullscreen
+    ? {
+        position: "fixed",
+        inset: 0,
+        zIndex: 10080,
         background: "#181818",
-        border: "3px solid #000",
-        borderRadius: "14px",
-        boxShadow: "6px 6px 0px #000",
+        border: "none",
+        borderRadius: 0,
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, Monaco, monospace",
+      }
+    : {
+        background: "#181818",
+        border: "2.5px solid var(--border)",
+        borderRadius: "12px",
+        boxShadow: "var(--shadow)",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, Monaco, monospace",
-      }}
-    >
+      };
+
+  return (
+    <div className="vscode-container" style={containerStyles}>
       {/* ── VS CODE TOPBAR ── */}
       <div
         style={{
@@ -195,20 +220,21 @@ export default function VSCodeViewer({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 12px",
+          padding: isMobile ? "0 8px" : "0 12px",
           height: "42px",
           userSelect: "none",
           flexWrap: "nowrap",
-          gap: 12,
+          gap: 8,
+          flexShrink: 0,
         }}
       >
         {/* Left: Window Controls & Active Tab */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, height: "100%", overflow: "hidden" }}>
-          {/* Mac-style Window Dots */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#FF5F56", border: "1px solid #E0443E", display: "inline-block" }} />
-            <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#FFBD2E", border: "1px solid #DEA123", display: "inline-block" }} />
-            <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#27C93F", border: "1px solid #1AAB29", display: "inline-block" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 12, height: "100%", minWidth: 0, flex: 1 }}>
+          {/* Mac-style Window Dots (Hidden on extra narrow screens to save space for filename) */}
+          <div className="hidden-mobile-xs" style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <span style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F56", border: "1px solid #E0443E", display: "inline-block" }} />
+            <span style={{ width: 11, height: 11, borderRadius: "50%", background: "#FFBD2E", border: "1px solid #DEA123", display: "inline-block" }} />
+            <span style={{ width: 11, height: 11, borderRadius: "50%", background: "#27C93F", border: "1px solid #1AAB29", display: "inline-block" }} />
           </div>
 
           {/* Active File Tab */}
@@ -217,42 +243,42 @@ export default function VSCodeViewer({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 6,
                 background: "#181818",
-                borderTop: "2px solid #007ACC",
+                borderTop: "2px solid #e26334",
                 borderRight: "1px solid #282828",
                 borderLeft: "1px solid #282828",
-                padding: "0 12px",
+                padding: isMobile ? "0 9px" : "0 12px",
                 height: "100%",
                 color: "#E0E0E0",
-                fontSize: "0.82rem",
+                fontSize: isMobile ? "0.76rem" : "0.82rem",
                 fontWeight: 600,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                minWidth: 0,
               }}
             >
-              <i className={langMeta.icon} style={{ color: langMeta.color, fontSize: "0.95rem" }} />
-              <span>{displayFilename}</span>
-              <span style={{ fontSize: "0.7rem", color: "#666", marginLeft: 4 }}>•</span>
+              <i className={langMeta.icon} style={{ color: langMeta.color, fontSize: "0.9rem", flexShrink: 0 }} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{displayFilename}</span>
             </div>
           )}
         </div>
 
         {/* Right: Quick VS Code Action Tools */}
         {showActions && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
             {/* Word Wrap Toggle Button */}
             <button
               type="button"
               onClick={() => setWordWrap(!wordWrap)}
-              title={wordWrap ? "Matikan Word Wrap" : "Aktifkan Word Wrap"}
+              title={wordWrap ? "Matikan Word Wrap (Scroll Horizontal)" : "Aktifkan Word Wrap"}
               style={{
-                background: wordWrap ? "#007ACC" : "#282828",
+                background: wordWrap ? "#e26334" : "#282828",
                 color: "#FFF",
                 border: "1px solid #3E3E3E",
                 borderRadius: "6px",
-                padding: "4px 8px",
+                padding: "5px 8px",
                 fontSize: "0.72rem",
                 fontWeight: 700,
                 cursor: "pointer",
@@ -263,6 +289,29 @@ export default function VSCodeViewer({
             >
               <i className="fa-solid fa-text-width" />
               <span className="hidden-mobile-sm">{wordWrap ? "Wrap: On" : "Wrap"}</span>
+            </button>
+
+            {/* Fullscreen Toggle Button (Great for Mobile Code Reading) */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              title={isFullscreen ? "Keluar Layar Penuh" : "Layar Penuh"}
+              style={{
+                background: isFullscreen ? "#f59e0b" : "#282828",
+                color: isFullscreen ? "#000" : "#FFF",
+                border: "1px solid #3E3E3E",
+                borderRadius: "6px",
+                padding: "5px 8px",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <i className={`fa-solid ${isFullscreen ? "fa-compress" : "fa-expand"}`} />
+              <span className="hidden-mobile-sm">{isFullscreen ? "Tutup" : "Penuh"}</span>
             </button>
 
             {/* View Raw Button */}
@@ -276,7 +325,7 @@ export default function VSCodeViewer({
                   color: "#FFF",
                   border: "1px solid #3E3E3E",
                   borderRadius: "6px",
-                  padding: "4px 8px",
+                  padding: "5px 8px",
                   fontSize: "0.72rem",
                   fontWeight: 700,
                   cursor: "pointer",
@@ -300,7 +349,7 @@ export default function VSCodeViewer({
                 color: "#FFF",
                 border: "1px solid #3E3E3E",
                 borderRadius: "6px",
-                padding: "4px 8px",
+                padding: "5px 8px",
                 fontSize: "0.72rem",
                 fontWeight: 700,
                 cursor: "pointer",
@@ -318,23 +367,23 @@ export default function VSCodeViewer({
               onClick={handleCopy}
               title="Salin Kode ke Clipboard"
               style={{
-                background: copied ? "#27C93F" : "var(--yellow, #FFE600)",
+                background: copied ? "#27C93F" : "var(--yellow, #f59e0b)",
                 color: "#000",
-                border: "2px solid #000",
+                border: "1.5px solid #000",
                 borderRadius: "6px",
-                padding: "4px 10px",
-                fontSize: "0.75rem",
+                padding: isMobile ? "5px 8px" : "4px 10px",
+                fontSize: "0.74rem",
                 fontWeight: 800,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                gap: 5,
                 boxShadow: "2px 2px 0px #000",
                 transition: "all 0.15s ease",
               }}
             >
               <i className={`fa-solid ${copied ? "fa-check" : "fa-copy"}`} />
-              <span>{copied ? "Tersalin!" : "Salin"}</span>
+              <span>{copied ? "Tersalin" : "Salin"}</span>
             </button>
           </div>
         )}
@@ -345,30 +394,39 @@ export default function VSCodeViewer({
         style={{
           background: "#181818",
           borderBottom: "1px solid #222",
-          padding: "4px 14px",
-          fontSize: "0.74rem",
+          padding: isMobile ? "4px 10px" : "4px 14px",
+          fontSize: "0.72rem",
           color: "#858585",
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           gap: 6,
           userSelect: "none",
+          flexShrink: 0,
         }}
       >
-        <span>src</span>
-        <span>›</span>
-        <span>modules</span>
-        <span>›</span>
-        <span style={{ color: "#D4D4D4", fontWeight: 600 }}>{displayFilename}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, overflow: "hidden" }}>
+          <span>src</span>
+          <span>›</span>
+          <span style={{ color: "#D4D4D4", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {displayFilename}
+          </span>
+        </div>
+        <span style={{ fontSize: "0.68rem", color: "#6a9955", flexShrink: 0 }}>
+          {wordWrap ? "Wrap: Aktif" : "Scroll: Horizontal"}
+        </span>
       </div>
 
       {/* ── Editor Canvas (Synchronous Highlighting) ── */}
       <div
         style={{
-          maxHeight,
+          maxHeight: isFullscreen ? "none" : maxHeight,
+          flex: isFullscreen ? 1 : undefined,
           overflowY: "auto",
           overflowX: "auto",
           background: "#181818",
           position: "relative",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <SyntaxHighlighter
@@ -377,20 +435,21 @@ export default function VSCodeViewer({
           wrapLongLines={wordWrap}
           showLineNumbers
           lineNumberStyle={{
-            minWidth: "3.2em",
-            paddingRight: "1.2em",
+            minWidth: isMobile ? "2.1em" : "3em",
+            paddingRight: isMobile ? "0.65em" : "1.1em",
             color: "#5C6370",
             textAlign: "right",
             userSelect: "none",
             borderRight: "1px solid #282828",
-            marginRight: "1.2em",
+            marginRight: isMobile ? "0.65em" : "1.1em",
+            fontSize: isMobile ? "0.75rem" : "0.82rem",
           }}
           customStyle={{
             margin: 0,
-            padding: "16px 14px",
+            padding: isMobile ? "12px 10px" : "16px 14px",
             background: "#181818",
-            fontSize: "0.85rem",
-            lineHeight: 1.65,
+            fontSize: isMobile ? "0.78rem" : "0.85rem",
+            lineHeight: 1.6,
             fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, Monaco, monospace",
             color: "#D4D4D4",
           }}
@@ -403,49 +462,48 @@ export default function VSCodeViewer({
       {showStatusBar && (
         <div
           style={{
-            background: "#007ACC",
-            color: "#FFF",
-            fontSize: "0.72rem",
+            background: "#2c4a3e",
+            borderTop: "1.5px solid #181818",
+            color: "#f7f3e8",
+            fontSize: "0.7rem",
             fontWeight: 600,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "3px 12px",
+            padding: "4px 10px",
             userSelect: "none",
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
             gap: 8,
+            flexShrink: 0,
           }}
         >
-          {/* Left: Branch & Problems */}
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <i className="fa-solid fa-code-branch" style={{ fontSize: "0.7rem" }} />
+          {/* Left: Branch & Status */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <i className="fa-solid fa-code-branch" style={{ fontSize: "0.68rem", color: "#f59e0b" }} />
               <span>main</span>
             </span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <i className="fa-solid fa-circle-xmark" style={{ fontSize: "0.68rem" }} />
-              <span>0</span>
-              <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: "0.68rem" }} />
-              <span>0</span>
+            <span className="hidden-mobile-sm" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <i className="fa-solid fa-circle-check" style={{ fontSize: "0.68rem", color: "#27C93F" }} />
+              <span>Ready</span>
             </span>
           </div>
 
-          {/* Right: Line Count, Indent, Encoding, Language */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span>Ln {lineCount}, Col 1</span>
-            <span className="hidden-mobile-sm">Spaces: 2</span>
+          {/* Right: Line Count & Language */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+            <span>{lineCount} baris</span>
             <span className="hidden-mobile-sm">UTF-8</span>
             <span
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
-                background: "rgba(255, 255, 255, 0.15)",
+                gap: 4,
+                background: "rgba(255, 255, 255, 0.14)",
                 padding: "1px 6px",
-                borderRadius: "3px",
+                borderRadius: "4px",
               }}
             >
-              <i className={langMeta.icon} style={{ fontSize: "0.75rem" }} />
+              <i className={langMeta.icon} style={{ fontSize: "0.72rem", color: "#f59e0b" }} />
               <span>{langMeta.label}</span>
             </span>
           </div>

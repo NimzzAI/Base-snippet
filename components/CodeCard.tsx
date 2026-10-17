@@ -6,12 +6,12 @@ import { Code } from "@/lib/types";
 import { toast } from "./ToastProvider";
 import CodePreviewModal from "./CodePreviewModal";
 import { fileNameFor, validThumbnail } from "@/lib/code-utils";
+import { useBookmarks } from "@/lib/bookmarks";
 
 export function Avatar({
   src,
   name,
-  size = 26,
-  radius = 50,
+  size = 24,
 }: {
   src?: string;
   name: string;
@@ -28,7 +28,7 @@ export function Avatar({
         style={{
           width: size,
           height: size,
-          borderRadius: `${radius}%`,
+          borderRadius: "2px",
         }}
       >
         <Image
@@ -51,9 +51,9 @@ export function Avatar({
       style={{
         width: size,
         height: size,
-        borderRadius: `${radius}%`,
-        background: "var(--yellow)",
-        color: "#000",
+        borderRadius: "2px",
+        background: "var(--mustard)",
+        color: "#141413",
       }}
     >
       {char}
@@ -64,32 +64,70 @@ export function Avatar({
 export default function CodeCard({ code }: { code: Code }) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const { isBookmarked, toggleBookmark } = useBookmarks();
 
   const fileName = fileNameFor(code);
   const thumb = validThumbnail(code.thumbnail);
   const [thumbFailed, setThumbFailed] = useState(false);
+  const saved = isBookmarked(code.slug);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     navigator.clipboard.writeText(code.code || "");
     setCopied(true);
-    toast("Kode disalin ke clipboard!", "success");
+    toast("Kode berhasil disalin ke clipboard!", "success");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleToggleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nowSaved = toggleBookmark(code.slug);
+    toast(
+      nowSaved ? "Snippet disimpan ke Bookmark!" : "Snippet dihapus dari Bookmark",
+      nowSaved ? "success" : "info"
+    );
   };
 
   return (
     <>
       <div className="snippet-card">
-        {/* Top Badges */}
+        {/* Top Row: Restrained Monospace Metadata & Bookmark */}
         <div className="snippet-card-top">
           <div className="badges-row">
-            <span className="category-badge">
-              <i className="fa-solid fa-folder-open" style={{ fontSize: "0.68rem" }} />
-              {code.category || "General"}
+            <span className="camp-stamp">
+              {(code.language || "CODE").toUpperCase()}
             </span>
-            <span className="lang-badge">{code.language || "code"}</span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                color: "var(--ink-muted)",
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              / {code.category || "General"}
+            </span>
           </div>
+
+          <button
+            type="button"
+            onClick={handleToggleBookmark}
+            className="camp-stamp"
+            style={{
+              cursor: "pointer",
+              background: saved ? "var(--mustard)" : "var(--surface)",
+              color: saved ? "#141413" : "var(--text)",
+              padding: "3px 8px",
+            }}
+            title={saved ? "Hapus dari Bookmark" : "Simpan ke Bookmark"}
+            aria-label="Simpan snippet"
+          >
+            <i className={`${saved ? "fa-solid" : "fa-regular"} fa-bookmark`} />
+          </button>
         </div>
 
         {/* Thumbnail */}
@@ -111,9 +149,13 @@ export default function CodeCard({ code }: { code: Code }) {
         </h3>
 
         {/* Description */}
-        {code.description && <p className="snippet-desc">{code.description}</p>}
+        {code.description && (
+          <p className="snippet-desc" style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>
+            {code.description}
+          </p>
+        )}
 
-        {/* Terminal Code Window (Clickable to preview) */}
+        {/* Clean Scratchpad Code Window */}
         <div
           className="code-window"
           onClick={() => setShowPreview(true)}
@@ -121,13 +163,9 @@ export default function CodeCard({ code }: { code: Code }) {
           title="Klik untuk membuka preview cepat"
         >
           <div className="code-window-bar">
-            <span className="dot dot-red" />
-            <span className="dot dot-yellow" />
-            <span className="dot dot-green" />
-            <span className="filename">{fileName}</span>
-            <span className="path-tag">
-              <i className="fa-solid fa-eye" style={{ fontSize: "0.65rem" }} />
-              Quick View
+            <span className="filename" style={{ marginLeft: 0 }}>{fileName}</span>
+            <span className="path-tag" style={{ borderRadius: 2 }}>
+              ● PREVIEW
             </span>
           </div>
           <div className="code-window-body code-window-body--preview">
@@ -143,32 +181,21 @@ export default function CodeCard({ code }: { code: Code }) {
           </div>
         </div>
 
-        {/* Tags */}
-        {code.tags && code.tags.length > 0 && (
-          <div className="tags-row">
-            {code.tags.slice(0, 3).map((t) => (
-              <span key={t} className="tag-pill">
-                #{t}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Meta stats and Author (NO Like Counter) */}
-        <div className="snippet-meta">
+        {/* Meta stats and Author */}
+        <div className="snippet-meta" style={{ fontFamily: "var(--font-mono)", fontSize: "0.74rem" }}>
           <div className="author">
-            <Avatar src={code.authorAvatar} name={code.authorName} size={24} />
+            <Avatar src={code.authorAvatar} name={code.authorName} size={20} />
             <span>{code.authorName || "Admin"}</span>
           </div>
 
           <div className="stat-icons">
             <span title={`${code.views || 0} views`}>
-              <i className="fa-regular fa-eye" /> {code.views || 0}
+              {code.views || 0} views
             </span>
           </div>
         </div>
 
-        {/* Actions with Quick Preview Button */}
+        {/* Actions */}
         <div className="snippet-actions">
           <button
             type="button"
@@ -184,29 +211,20 @@ export default function CodeCard({ code }: { code: Code }) {
             className="btn btn-primary btn-sm"
             title="Buka halaman detail lengkap"
           >
-            <i className="fa-solid fa-arrow-up-right-from-square" /> Detail
+            Detail →
           </Link>
 
           <button
             type="button"
             onClick={handleCopy}
-            className="btn btn-secondary btn-sm"
+            className="btn btn-sm"
             title="Salin Code"
           >
-            {copied ? (
-              <>
-                <i className="fa-solid fa-check" /> Disalin
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-copy" /> Salin
-              </>
-            )}
+            {copied ? "Tersalin" : "Salin"}
           </button>
         </div>
       </div>
 
-      {/* Quick Preview Modal */}
       {showPreview && (
         <CodePreviewModal
           code={code}

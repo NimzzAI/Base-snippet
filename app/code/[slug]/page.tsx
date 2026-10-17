@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "@/components/ToastProvider";
 import { Avatar } from "@/components/CodeCard";
 import VSCodeViewer from "@/components/VSCodeViewer";
+import { StitchedLoader } from "@/components/FieldJournalDecor";
+import { useBookmarks } from "@/lib/bookmarks";
 import { config } from "@/lib/config";
 import { buildShareText, codeUrl, fileExtFor, fileNameFor, validThumbnail } from "@/lib/code-utils";
 import Link from "next/link";
@@ -26,6 +28,7 @@ export default function CodeDetailPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const { isAdmin } = useAuth();
+  const { isBookmarked, toggleBookmark } = useBookmarks();
   const router = useRouter();
   const [code, setCode] = useState<Code | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,13 @@ export default function CodeDetailPage() {
     setCopied(true);
     toast("Code berhasil disalin ke clipboard!", "success");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyAsMarkdown = () => {
+    if (!code) return;
+    const md = `### ${code.title}\n> Kategori: **${code.category || "Tools"}** • Bahasa: \`${code.language}\`\n\n\`\`\`${code.language || "txt"}\n${code.code}\n\`\`\`\n`;
+    navigator.clipboard.writeText(md);
+    toast("Snippet disalin dalam format Markdown!", "success");
   };
 
   const downloadCode = () => {
@@ -135,9 +145,8 @@ export default function CodeDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <div className="skeleton" style={{ height: 160 }} />
-        <div className="skeleton" style={{ height: 420 }} />
+      <div style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 14 }}>
+        <StitchedLoader label="Memuat Detail Kode..." code="[CODE.LOADING]" count={2} />
       </div>
     );
   }
@@ -157,9 +166,10 @@ export default function CodeDetailPage() {
 
   const fileName = fileNameFor(code);
   const thumb = validThumbnail(code.thumbnail);
+  const saved = isBookmarked(code.slug);
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 10 }}>
+    <div style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 14 }}>
       {/* Thumbnail */}
       {thumb && (
         <div className="detail-thumb">
@@ -176,26 +186,29 @@ export default function CodeDetailPage() {
       )}
 
       {/* Navigation Breadcrumb / Back button */}
-      <div style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <Link href="/search" className="btn btn-sm">
-          <i className="fa-solid fa-arrow-left" /> Kembali ke Daftar
+          <i className="fa-solid fa-arrow-left" /> Kembali ke Katalog
         </Link>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Link href={`/category/${encodeURIComponent(code.category || "Tools")}`} className="category-badge">
-            <i className="fa-solid fa-folder-open" style={{ fontSize: "0.7rem" }} />
+          <Link href={`/category/${encodeURIComponent(code.category || "Tools")}`} className="camp-stamp">
+            <i className="fa-solid fa-folder-open" style={{ color: "var(--blue)", marginRight: 5 }} />
             {code.category}
           </Link>
-          <span className="lang-badge">{code.language}</span>
+          <span className="camp-stamp" style={{ background: "var(--accent-soft)", color: "var(--blue)" }}>
+            {(code.language || "code").toUpperCase()}
+          </span>
         </div>
       </div>
 
-      {/* Detail Head */}
-      <div className="detail-head" style={{ marginBottom: 20 }}>
+      {/* Detail Head with Studio Tape */}
+      <div className="detail-head" style={{ marginBottom: 20, overflow: "visible", paddingTop: 26 }}>
+        <div className="washi-tape" />
         <div className="detail-head-top">
           <div className="detail-title">
-            <h1 style={{ fontSize: "1.55rem", fontWeight: 800, lineHeight: 1.3, marginBottom: 8 }}>
-              {code.title}
+            <h1 style={{ fontSize: "1.6rem", fontWeight: 700, lineHeight: 1.3, marginBottom: 8 }}>
+              <span className="text-laidback">{code.title}</span>
             </h1>
           </div>
 
@@ -245,9 +258,33 @@ export default function CodeDetailPage() {
             <span>{copied ? "Berhasil Disalin!" : "Salin Kode"}</span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => {
+              const nowSaved = toggleBookmark(code.slug);
+              toast(
+                nowSaved ? "Snippet disimpan ke Bookmark!" : "Snippet dihapus dari Bookmark",
+                nowSaved ? "success" : "info"
+              );
+            }}
+            className="action-btn"
+            style={{
+              background: saved ? "var(--green)" : "var(--surface)",
+              color: saved ? "#000" : "var(--text)",
+            }}
+          >
+            <i className={`${saved ? "fa-solid" : "fa-regular"} fa-bookmark`} />
+            <span>{saved ? "Tersimpan" : "Bookmark"}</span>
+          </button>
+
           <button type="button" onClick={downloadCode} className="action-btn">
             <i className="fa-solid fa-download" />
             <span>Download File</span>
+          </button>
+
+          <button type="button" onClick={copyAsMarkdown} className="action-btn" title="Salin sebagai blok kode Markdown">
+            <i className="fa-brands fa-markdown" />
+            <span>Salin Markdown</span>
           </button>
 
           <Link
