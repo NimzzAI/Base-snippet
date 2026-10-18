@@ -542,13 +542,12 @@ button { font-family: inherit; }
   margin: 0 auto;
   padding: 0 24px;
   position: relative;
-  z-index: 1;
 }
 
 /*
    3. APP SHELL
    */
-.app-shell { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+.app-shell { display: flex; min-height: 100vh; position: relative; }
 
 .main-area {
   flex: 1;

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Code } from "@/lib/types";
 import { useBookmarks } from "@/lib/bookmarks";
@@ -144,13 +145,13 @@ export default function CommandPalette({
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, items, selectedIndex, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
       className="preview-backdrop"
       onClick={onClose}
-      style={{ zIndex: 10050, alignItems: "flex-start", paddingTop: "8vh" }}
+      style={{ zIndex: 99990, alignItems: "flex-start", paddingTop: "8vh" }}
     >
       <div
         className="preview-sheet"
@@ -220,8 +221,8 @@ export default function CommandPalette({
                     gap: 12,
                     padding: "10px 12px",
                     marginBottom: 4,
-                    borderRadius: 8,
-                    border: active ? "2px solid var(--border)" : "2px solid transparent",
+                    borderRadius: 2,
+                    border: active ? "1.5px solid var(--border)" : "1.5px solid transparent",
                     background: active ? "var(--yellow)" : "var(--surface)",
                     color: active ? "#000" : "var(--text)",
                     boxShadow: active ? "2px 2px 0px var(--border)" : "none",
@@ -235,8 +236,8 @@ export default function CommandPalette({
                       style={{
                         width: 34,
                         height: 34,
-                        borderRadius: 8,
-                        border: "2px solid var(--border)",
+                        borderRadius: 2,
+                        border: "1.5px solid var(--border)",
                         background: active ? "#FFF" : "var(--bg-2)",
                         color: "#000",
                         display: "flex",
@@ -308,6 +309,7 @@ export default function CommandPalette({
           <span>CTRL + K</span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

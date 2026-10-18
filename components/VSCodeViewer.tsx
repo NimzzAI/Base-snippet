@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { toast } from "./ToastProvider";
 
@@ -109,7 +110,7 @@ function getLangIcon(lang: string = ""): { icon: string; color: string; label: s
   if (l.includes("bash") || l.includes("sh") || l.includes("shell")) return { icon: "fa-solid fa-terminal", color: "#4EAA25", label: "Bash", ext: "sh" };
   if (l.includes("sql")) return { icon: "fa-solid fa-database", color: "#00758F", label: "SQL", ext: "sql" };
   if (l.includes("react") || l === "jsx" || l === "tsx") return { icon: "fa-brands fa-react", color: "#61DAFB", label: "React", ext: "tsx" };
-  return { icon: "fa-solid fa-file-code", color: "#f59e0b", label: lang || "Code", ext: "txt" };
+  return { icon: "fa-solid fa-file-code", color: "#cbb340", label: lang || "Code", ext: "txt" };
 }
 
 function normalizePrismLang(lang: string = ""): string {
@@ -143,9 +144,11 @@ export default function VSCodeViewer({
   const [wordWrap, setWordWrap] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Auto-detect mobile screen to optimize gutter & default word-wrap
   useEffect(() => {
+    setMounted(true);
     const checkViewport = () => {
       const mobile = window.innerWidth <= 640;
       setIsMobile(mobile);
@@ -157,6 +160,24 @@ export default function VSCodeViewer({
     window.addEventListener("resize", checkViewport);
     return () => window.removeEventListener("resize", checkViewport);
   }, []);
+
+  // Lock body scroll & handle Escape key when in fullscreen mode
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isFullscreen]);
 
   const cleanCode = code || "// No code available";
   const lines = cleanCode.split("\n");
@@ -190,8 +211,13 @@ export default function VSCodeViewer({
   const containerStyles: React.CSSProperties = isFullscreen
     ? {
         position: "fixed",
-        inset: 0,
-        zIndex: 10080,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100vw",
+        height: "100dvh",
+        zIndex: 99999,
         background: "#181818",
         border: "none",
         borderRadius: 0,
@@ -201,8 +227,8 @@ export default function VSCodeViewer({
       }
     : {
         background: "#181818",
-        border: "2.5px solid var(--border)",
-        borderRadius: "12px",
+        border: "1.5px solid var(--border)",
+        borderRadius: "2px",
         boxShadow: "var(--shadow)",
         overflow: "hidden",
         display: "flex",
@@ -210,7 +236,7 @@ export default function VSCodeViewer({
         fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, Monaco, monospace",
       };
 
-  return (
+  const viewerNode = (
     <div className="vscode-container" style={containerStyles}>
       {/* ── VS CODE TOPBAR ── */}
       <div
@@ -221,7 +247,7 @@ export default function VSCodeViewer({
           alignItems: "center",
           justifyContent: "space-between",
           padding: isMobile ? "0 8px" : "0 12px",
-          height: "42px",
+          height: isFullscreen ? "48px" : "42px",
           userSelect: "none",
           flexWrap: "nowrap",
           gap: 8,
@@ -245,7 +271,7 @@ export default function VSCodeViewer({
                 alignItems: "center",
                 gap: 6,
                 background: "#181818",
-                borderTop: "2px solid #e26334",
+                borderTop: "2px solid #cbb340",
                 borderRight: "1px solid #282828",
                 borderLeft: "1px solid #282828",
                 padding: isMobile ? "0 9px" : "0 12px",
@@ -274,10 +300,10 @@ export default function VSCodeViewer({
               onClick={() => setWordWrap(!wordWrap)}
               title={wordWrap ? "Matikan Word Wrap (Scroll Horizontal)" : "Aktifkan Word Wrap"}
               style={{
-                background: wordWrap ? "#e26334" : "#282828",
-                color: "#FFF",
+                background: wordWrap ? "#cbb340" : "#282828",
+                color: wordWrap ? "#141413" : "#FFF",
                 border: "1px solid #3E3E3E",
-                borderRadius: "6px",
+                borderRadius: "2px",
                 padding: "5px 8px",
                 fontSize: "0.72rem",
                 fontWeight: 700,
@@ -291,27 +317,29 @@ export default function VSCodeViewer({
               <span className="hidden-mobile-sm">{wordWrap ? "Wrap: On" : "Wrap"}</span>
             </button>
 
-            {/* Fullscreen Toggle Button (Great for Mobile Code Reading) */}
+            {/* Fullscreen Toggle Button — Always shows clear "Tutup" label when in fullscreen */}
             <button
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              title={isFullscreen ? "Keluar Layar Penuh" : "Layar Penuh"}
+              title={isFullscreen ? "Keluar Layar Penuh (Esc)" : "Layar Penuh"}
               style={{
-                background: isFullscreen ? "#f59e0b" : "#282828",
-                color: isFullscreen ? "#000" : "#FFF",
+                background: isFullscreen ? "#c84b31" : "#282828",
+                color: "#FFF",
                 border: "1px solid #3E3E3E",
-                borderRadius: "6px",
-                padding: "5px 8px",
+                borderRadius: "2px",
+                padding: isFullscreen ? "5px 10px" : "5px 8px",
                 fontSize: "0.72rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 5,
               }}
             >
-              <i className={`fa-solid ${isFullscreen ? "fa-compress" : "fa-expand"}`} />
-              <span className="hidden-mobile-sm">{isFullscreen ? "Tutup" : "Penuh"}</span>
+              <i className={`fa-solid ${isFullscreen ? "fa-xmark" : "fa-expand"}`} />
+              <span className={isFullscreen ? undefined : "hidden-mobile-sm"}>
+                {isFullscreen ? "Tutup" : "Penuh"}
+              </span>
             </button>
 
             {/* View Raw Button */}
@@ -324,7 +352,7 @@ export default function VSCodeViewer({
                   background: "#282828",
                   color: "#FFF",
                   border: "1px solid #3E3E3E",
-                  borderRadius: "6px",
+                  borderRadius: "2px",
                   padding: "5px 8px",
                   fontSize: "0.72rem",
                   fontWeight: 700,
@@ -348,7 +376,7 @@ export default function VSCodeViewer({
                 background: "#282828",
                 color: "#FFF",
                 border: "1px solid #3E3E3E",
-                borderRadius: "6px",
+                borderRadius: "2px",
                 padding: "5px 8px",
                 fontSize: "0.72rem",
                 fontWeight: 700,
@@ -367,10 +395,10 @@ export default function VSCodeViewer({
               onClick={handleCopy}
               title="Salin Kode ke Clipboard"
               style={{
-                background: copied ? "#27C93F" : "var(--yellow, #f59e0b)",
-                color: "#000",
+                background: copied ? "#8eb897" : "var(--mustard, #cbb340)",
+                color: "#141413",
                 border: "1.5px solid #000",
-                borderRadius: "6px",
+                borderRadius: "2px",
                 padding: isMobile ? "5px 8px" : "4px 10px",
                 fontSize: "0.74rem",
                 fontWeight: 800,
@@ -412,7 +440,7 @@ export default function VSCodeViewer({
             {displayFilename}
           </span>
         </div>
-        <span style={{ fontSize: "0.68rem", color: "#6a9955", flexShrink: 0 }}>
+        <span style={{ fontSize: "0.68rem", color: "#8eb897", flexShrink: 0 }}>
           {wordWrap ? "Wrap: Aktif" : "Scroll: Horizontal"}
         </span>
       </div>
@@ -462,15 +490,17 @@ export default function VSCodeViewer({
       {showStatusBar && (
         <div
           style={{
-            background: "#2c4a3e",
-            borderTop: "1.5px solid #181818",
-            color: "#f7f3e8",
+            background: "#1f1f1d",
+            borderTop: "1.5px solid #2c2c29",
+            color: "#f2efe9",
             fontSize: "0.7rem",
             fontWeight: 600,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 10px",
+            padding: isFullscreen
+              ? "6px 12px calc(6px + env(safe-area-inset-bottom, 0px))"
+              : "4px 10px",
             userSelect: "none",
             flexWrap: "nowrap",
             gap: 8,
@@ -480,11 +510,11 @@ export default function VSCodeViewer({
           {/* Left: Branch & Status */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <i className="fa-solid fa-code-branch" style={{ fontSize: "0.68rem", color: "#f59e0b" }} />
+              <i className="fa-solid fa-code-branch" style={{ fontSize: "0.68rem", color: "#cbb340" }} />
               <span>main</span>
             </span>
             <span className="hidden-mobile-sm" style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <i className="fa-solid fa-circle-check" style={{ fontSize: "0.68rem", color: "#27C93F" }} />
+              <i className="fa-solid fa-circle-check" style={{ fontSize: "0.68rem", color: "#8eb897" }} />
               <span>Ready</span>
             </span>
           </div>
@@ -498,12 +528,12 @@ export default function VSCodeViewer({
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
-                background: "rgba(255, 255, 255, 0.14)",
+                background: "rgba(255, 255, 255, 0.1)",
                 padding: "1px 6px",
-                borderRadius: "4px",
+                borderRadius: "2px",
               }}
             >
-              <i className={langMeta.icon} style={{ fontSize: "0.72rem", color: "#f59e0b" }} />
+              <i className={langMeta.icon} style={{ fontSize: "0.72rem", color: "#cbb340" }} />
               <span>{langMeta.label}</span>
             </span>
           </div>
@@ -511,4 +541,12 @@ export default function VSCodeViewer({
       )}
     </div>
   );
+
+  // When in fullscreen mode, render via React Portal directly into document.body
+  // so it breaks out of any parent container stacking contexts (Topbar, Footer, MobileTabBar).
+  if (isFullscreen && mounted && typeof document !== "undefined") {
+    return createPortal(viewerNode, document.body);
+  }
+
+  return viewerNode;
 }
