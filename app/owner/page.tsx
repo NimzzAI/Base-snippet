@@ -101,9 +101,9 @@ export default function OwnerPage() {
   ];
 
   return (
-    <div style={{ maxWidth: 1060, margin: "0 auto", paddingTop: 10, paddingBottom: 48 }}>
+    <div style={{ maxWidth: 1060, margin: "0 auto", paddingTop: 8, paddingBottom: 48 }}>
       {/* ============================================================
-          1. DEVELOPER SHOWCASE PROFILE CARD (WITH HERO BANNER & AVATAR)
+          1. DEVELOPER SHOWCASE PROFILE CARD (WITH 60FPS BANNER & CLEAN AVATAR LAYOUT)
           ============================================================ */}
       <section
         style={{
@@ -112,13 +112,13 @@ export default function OwnerPage() {
           borderRadius: "2px",
           boxShadow: "var(--shadow-lg)",
           overflow: "hidden",
-          marginBottom: 24,
+          marginBottom: 28,
         }}
       >
-        {/* Full-Width Developer Banner */}
+        {/* 60fps Interactive Developer Banner */}
         <ParallaxCampBanner
           imageUrl={banner || undefined}
-          height={230}
+          height={220}
           stampLeft={`DEVELOPER STUDIO // @${username.toUpperCase()}`}
           stampRight="● VERIFIED OWNER"
         >
@@ -128,8 +128,8 @@ export default function OwnerPage() {
               className="btn btn-sm btn-yellow"
               style={{
                 position: "absolute",
-                bottom: 14,
-                right: 14,
+                bottom: 12,
+                right: 12,
                 zIndex: 10,
               }}
             >
@@ -138,116 +138,86 @@ export default function OwnerPage() {
           )}
         </ParallaxCampBanner>
 
-        {/* Profile Body */}
-        <div style={{ padding: "0 26px 28px", position: "relative" }}>
-          {/* Avatar + Quick Stats Bar */}
+        {/* Profile Body — ONLY the Avatar overlaps the Banner; Text sits 100% cleanly on the light card! */}
+        <div style={{ padding: "0 22px 26px", position: "relative" }}>
+          {/* Row 1: Overlapping Framed Avatar on Left + Live Stats Strip on Right */}
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-end",
               flexWrap: "wrap",
-              gap: 16,
-              marginTop: -58,
-              marginBottom: 20,
-              position: "relative",
-              zIndex: 10,
+              gap: 14,
+              marginBottom: 16,
             }}
           >
-            {/* Framed Studio Avatar */}
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+            {/* ONLY the Avatar Frame has negative marginTop so text NEVER touches the dark banner */}
+            <div
+              style={{
+                marginTop: -54,
+                position: "relative",
+                zIndex: 10,
+                background: "var(--surface)",
+                padding: 6,
+                border: "1.5px solid var(--border)",
+                boxShadow: "3px 3px 0px var(--border)",
+                transform: "rotate(-1.2deg)",
+              }}
+            >
               <div
                 style={{
-                  background: "var(--surface)",
-                  padding: 6,
+                  width: 104,
+                  height: 104,
                   border: "1.5px solid var(--border)",
-                  boxShadow: "3px 3px 0px var(--border)",
-                  transform: "rotate(-1.2deg)",
+                  background: "var(--surface-alt)",
+                  overflow: "hidden",
+                  position: "relative",
                 }}
               >
-                <div
-                  style={{
-                    width: 112,
-                    height: 112,
-                    border: "1.5px solid var(--border)",
-                    background: "var(--surface-alt)",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  {photoURL ? (
-                    <Image
-                      quality={95}
-                      src={photoURL}
-                      alt={displayName}
-                      width={224}
-                      height={224}
-                      unoptimized={photoURL.startsWith("data:")}
-                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                      priority
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "2.5rem",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {displayName[0] || "N"}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ paddingBottom: 4 }}>
-                <div className="scratch-status-line" style={{ marginBottom: 4 }}>
-                  <span className="scratch-status-dot" />
-                  <span>PLATFORM CREATOR &amp; LEAD DEVELOPER</span>
-                </div>
-                <h1
-                  style={{
-                    fontSize: "clamp(1.65rem, 3.2vw, 2.25rem)",
-                    fontWeight: 800,
-                    letterSpacing: "-0.035em",
-                    lineHeight: 1.05,
-                  }}
-                >
-                  <span className="marker-under">{displayName}</span>
-                </h1>
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.82rem",
-                    color: "var(--ink-muted)",
-                    fontWeight: 600,
-                    marginTop: 4,
-                  }}
-                >
-                  @{username} • Full-Stack Software Engineer
-                </div>
+                {photoURL ? (
+                  <Image
+                    quality={95}
+                    src={photoURL}
+                    alt={displayName}
+                    width={208}
+                    height={208}
+                    unoptimized={photoURL.startsWith("data:")}
+                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    priority
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "2.4rem",
+                      fontWeight: 800,
+                    }}
+                  >
+                    {displayName[0] || "N"}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Live Developer Stats Strip */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {/* Live Developer Stats Strip (Sits cleanly on the card below the banner) */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", paddingTop: 12 }}>
               <div
                 style={{
                   background: "var(--surface-alt)",
                   border: "1.5px solid var(--border)",
-                  padding: "8px 14px",
+                  padding: "7px 14px",
                   boxShadow: "2px 2px 0px var(--border)",
                   fontFamily: "var(--font-mono)",
                 }}
               >
-                <div style={{ fontSize: "0.68rem", color: "var(--ink-muted)", fontWeight: 700 }}>
+                <div style={{ fontSize: "0.66rem", color: "var(--ink-muted)", fontWeight: 700 }}>
                   TOTAL SNIPPET
                 </div>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--ink)" }}>
+                <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--ink)" }}>
                   {codes.length} File
                 </div>
               </div>
@@ -256,29 +226,66 @@ export default function OwnerPage() {
                 style={{
                   background: "var(--mustard)",
                   border: "1.5px solid #141413",
-                  padding: "8px 14px",
+                  padding: "7px 14px",
                   boxShadow: "2px 2px 0px #141413",
                   fontFamily: "var(--font-mono)",
                   color: "#141413",
                 }}
               >
-                <div style={{ fontSize: "0.68rem", fontWeight: 700, opacity: 0.8 }}>
+                <div style={{ fontSize: "0.66rem", fontWeight: 700, opacity: 0.85 }}>
                   TOTAL DIBACA
                 </div>
-                <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>
+                <div style={{ fontSize: "1.05rem", fontWeight: 800 }}>
                   {totalViews} Views
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bio Box & Tech Stack */}
+          {/* Row 2: Clean Developer Name, Role Badge, & Handle (100% on light card background) */}
+          <div style={{ marginBottom: 20 }}>
+            <div className="scratch-status-line" style={{ marginBottom: 6 }}>
+              <span className="live-dot-pulse" />
+              <span>PLATFORM CREATOR &amp; LEAD DEVELOPER</span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <h1
+                style={{
+                  fontSize: "clamp(1.75rem, 3.4vw, 2.35rem)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.035em",
+                  lineHeight: 1.1,
+                  color: "var(--ink)",
+                }}
+              >
+                <span className="marker-under">{displayName}</span>
+              </h1>
+              <span className="camp-stamp" style={{ background: "var(--sage-note)", color: "#141413" }}>
+                ✓ VERIFIED
+              </span>
+            </div>
+
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.84rem",
+                color: "var(--ink-muted)",
+                fontWeight: 600,
+                marginTop: 4,
+              }}
+            >
+              @{username} • Full-Stack Software Engineer
+            </div>
+          </div>
+
+          {/* Row 3: Bio Box & Tech Stack */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
               gap: 20,
-              paddingTop: 16,
+              paddingTop: 18,
               borderTop: "1.5px solid var(--border)",
             }}
           >
@@ -347,7 +354,7 @@ export default function OwnerPage() {
       </section>
 
       {/* ============================================================
-          2. INFINITE LOOPING MUSTARD MARQUEE STRIP
+          2. FULL-BLEED INFINITE LOOPING MUSTARD MARQUEE STRIP
           ============================================================ */}
       <div style={{ marginBottom: 36 }}>
         <MustardDividerStrip

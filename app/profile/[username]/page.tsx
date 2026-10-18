@@ -129,20 +129,29 @@ export default function ProfilePage() {
                 alignItems: "flex-end",
                 flexWrap: "wrap",
                 gap: 12,
-                marginTop: -56,
                 marginBottom: 16,
                 position: "relative",
                 zIndex: 10,
               }}
             >
-              {/* Tilted Polaroid Frame */}
-              <div className="polaroid-frame">
+              {/* Tilted Polaroid Frame — only the avatar overlaps the banner */}
+              <div
+                className="polaroid-frame"
+                style={{
+                  marginTop: -54,
+                  background: "var(--surface)",
+                  padding: 6,
+                  border: "1.5px solid var(--border)",
+                  boxShadow: "3px 3px 0px var(--border)",
+                  transform: "rotate(-1.2deg)",
+                }}
+              >
                 <div
                   style={{
                     width: 104,
                     height: 104,
-                    borderRadius: 8,
-                    border: "2px solid var(--border)",
+                    borderRadius: 2,
+                    border: "1.5px solid var(--border)",
                     background: "var(--surface-alt)",
                     overflow: "hidden",
                   }}
@@ -173,13 +182,14 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <span className="polaroid-caption">@{activeProfile.username}</span>
               </div>
 
               {isAdmin && isMatchAdmin && (
-                <Link href="/dashboard" className="btn btn-sm btn-yellow">
-                  <i className="fa-solid fa-pen" /> Edit Profil
-                </Link>
+                <div style={{ paddingTop: 12 }}>
+                  <Link href="/dashboard" className="btn btn-sm btn-yellow">
+                    <i className="fa-solid fa-pen" /> Edit Profil
+                  </Link>
+                </div>
               )}
             </div>
 

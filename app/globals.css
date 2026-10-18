@@ -303,47 +303,65 @@ code, pre, .camp-stamp, .sidebar-count, .lang-badge, .mono-sub {
   transform: rotate(1.5deg);
 }
 
-/* D. Full-Width Mustard Marquee / Divider Strip (Infinite Horizontal Loop) */
-.mustard-strip {
-  width: 100%;
+/* D. Full-Width Edge-to-Edge Mustard Marquee / Divider Strip (Infinite 60fps Loop) */
+.mustard-strip,
+.mustard-strip-fullbleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   background: var(--mustard);
   color: #141413;
-  border: 1.5px solid #141413;
-  box-shadow: 3px 3px 0px #141413;
-  padding: 10px 0;
+  border-top: 2px solid #141413;
+  border-bottom: 2px solid #141413;
+  padding: 12px 0;
   font-family: var(--font-mono, monospace);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   overflow: hidden;
-  position: relative;
   user-select: none;
+}
+
+@media (min-width: 901px) {
+  .mustard-strip,
+  .mustard-strip-fullbleed {
+    width: calc(100vw - var(--sidebar-w));
+    left: 50%;
+    margin-left: calc(-50vw + (var(--sidebar-w) / 2));
+    margin-right: calc(-50vw + (var(--sidebar-w) / 2));
+  }
 }
 
 .mustard-strip-track {
   display: flex;
   width: max-content;
-  animation: mustardMarquee 24s linear infinite;
+  animation: mustardMarquee 22s linear infinite;
   will-change: transform;
 }
 
-.mustard-strip:hover .mustard-strip-track {
+.mustard-strip:hover .mustard-strip-track,
+.mustard-strip-fullbleed:hover .mustard-strip-track {
   animation-play-state: paused;
 }
 
 .mustard-strip-group {
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding-right: 22px;
+  gap: 24px;
+  padding-right: 24px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .mustard-star {
   color: #141413;
-  font-size: 12px;
+  font-size: 13px;
+  display: inline-block;
+  animation: spinStar 8s linear infinite;
 }
 
 @keyframes mustardMarquee {
@@ -353,6 +371,44 @@ code, pre, .camp-stamp, .sidebar-count, .lang-badge, .mono-sub {
   100% {
     transform: translate3d(-50%, 0, 0);
   }
+}
+
+@keyframes spinStar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 60fps Live UI Micro-Animations */
+.live-dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #2d8a4e;
+  border: 1.5px solid #141413;
+  display: inline-block;
+  animation: livePulse 1.8s infinite ease-in-out;
+}
+
+@keyframes livePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.28); opacity: 0.75; }
+}
+
+.cursor-blink {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--mustard);
+  animation: cursorBlink 1s steps(2, start) infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.pulse-star {
+  display: inline-block;
+  animation: spinStar 5s linear infinite;
 }
 
 /* Open Canvas Hero Layout */
