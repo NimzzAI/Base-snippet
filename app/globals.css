@@ -303,40 +303,56 @@ code, pre, .camp-stamp, .sidebar-count, .lang-badge, .mono-sub {
   transform: rotate(1.5deg);
 }
 
-/* D. Full-Width Mustard Marquee / Divider Strip */
+/* D. Full-Width Mustard Marquee / Divider Strip (Infinite Horizontal Loop) */
 .mustard-strip {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  width: 100%;
   background: var(--mustard);
   color: #141413;
-  border-top: 1.5px solid #141413;
-  border-bottom: 1.5px solid #141413;
-  padding: 10px 16px;
+  border: 1.5px solid #141413;
+  box-shadow: 3px 3px 0px #141413;
+  padding: 10px 0;
   font-family: var(--font-mono, monospace);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
 }
 
-.mustard-strip::-webkit-scrollbar {
-  display: none;
+.mustard-strip-track {
+  display: flex;
+  width: max-content;
+  animation: mustardMarquee 24s linear infinite;
+  will-change: transform;
 }
 
-.mustard-strip-inner {
+.mustard-strip:hover .mustard-strip-track {
+  animation-play-state: paused;
+}
+
+.mustard-strip-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 18px;
+  gap: 22px;
+  padding-right: 22px;
   white-space: nowrap;
-  min-width: max-content;
-  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.mustard-star {
+  color: #141413;
+  font-size: 12px;
+}
+
+@keyframes mustardMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 /* Open Canvas Hero Layout */

@@ -6,7 +6,11 @@ import { Code } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { config } from "@/lib/config";
 import CodeCard from "@/components/CodeCard";
-import { MustardDividerStrip, StitchedLoader } from "@/components/FieldJournalDecor";
+import {
+  ParallaxCampBanner,
+  MustardDividerStrip,
+  StitchedLoader,
+} from "@/components/FieldJournalDecor";
 
 export default function OwnerPage() {
   const { adminConfig, isAdmin } = useAuth();
@@ -32,13 +36,19 @@ export default function OwnerPage() {
     return () => clearInterval(interval);
   }, [fetchProfile]);
 
-  const displayName = liveProfile?.displayName || adminConfig?.displayName || config.admin.displayName;
-  const username = liveProfile?.username || adminConfig?.username || config.admin.username;
+  const displayName =
+    liveProfile?.displayName || adminConfig?.displayName || config.admin.displayName;
+  const username =
+    liveProfile?.username || adminConfig?.username || config.admin.username;
   const bio = liveProfile?.bio || adminConfig?.bio || config.admin.bio;
   const photoURL =
     liveProfile?.photoURL !== undefined
       ? liveProfile.photoURL
       : adminConfig?.photoURL || config.admin.photoURL;
+  const banner =
+    liveProfile?.banner !== undefined
+      ? liveProfile.banner
+      : adminConfig?.banner || config.admin.banner;
   const socials = {
     ...config.admin.socials,
     ...(adminConfig?.socials || {}),
@@ -67,6 +77,8 @@ export default function OwnerPage() {
     return () => clearInterval(interval);
   }, [fetchOwnerCodes]);
 
+  const totalViews = codes.reduce((acc, c) => acc + (c.views || 0), 0);
+
   const waUrl = socials.whatsapp;
   const ghUrl = socials.github?.startsWith("http")
     ? socials.github
@@ -79,91 +91,88 @@ export default function OwnerPage() {
     : `https://tiktok.com/@${(socials.tiktok || "nimzz_code").replace("@", "")}`;
 
   const techStack = [
-    "JavaScript",
-    "TypeScript",
-    "Next.js",
-    "React",
-    "Node.js",
-    "Python",
-    "Tailwind CSS",
+    { name: "JavaScript", icon: "fa-brands fa-js" },
+    { name: "TypeScript", icon: "fa-solid fa-code" },
+    { name: "Next.js", icon: "fa-solid fa-n" },
+    { name: "React", icon: "fa-brands fa-react" },
+    { name: "Node.js", icon: "fa-brands fa-node" },
+    { name: "Python", icon: "fa-brands fa-python" },
+    { name: "Tailwind CSS", icon: "fa-solid fa-wind" },
   ];
 
   return (
-    <div style={{ maxWidth: 1060, margin: "0 auto" }}>
+    <div style={{ maxWidth: 1060, margin: "0 auto", paddingTop: 10, paddingBottom: 48 }}>
       {/* ============================================================
-          1. OPEN CANVAS DEVELOPER PROFILE & TILTED ID WINDOW
+          1. DEVELOPER SHOWCASE PROFILE CARD (WITH HERO BANNER & AVATAR)
           ============================================================ */}
-      <section className="scratch-hero-section">
-        <div className="scratch-hero-grid">
-          {/* Left Column: Clean Canvas Typography + 1 Bottom Marker Highlight */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <div className="scratch-status-line" style={{ marginBottom: 18 }}>
-              <span className="scratch-status-dot" />
-              <span>MAKER PROFILE // @{username.toUpperCase()}</span>
-            </div>
-
-            <h1
+      <section
+        style={{
+          background: "var(--surface)",
+          border: "1.5px solid var(--border)",
+          borderRadius: "2px",
+          boxShadow: "var(--shadow-lg)",
+          overflow: "hidden",
+          marginBottom: 24,
+        }}
+      >
+        {/* Full-Width Developer Banner */}
+        <ParallaxCampBanner
+          imageUrl={banner || undefined}
+          height={230}
+          stampLeft={`DEVELOPER STUDIO // @${username.toUpperCase()}`}
+          stampRight="● VERIFIED OWNER"
+        >
+          {isAdmin && (
+            <Link
+              href="/dashboard"
+              className="btn btn-sm btn-yellow"
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "clamp(2.2rem, 4.8vw, 3.7rem)",
-                fontWeight: 800,
-                letterSpacing: "-0.04em",
-                lineHeight: 0.96,
-                marginBottom: 20,
-                color: "var(--ink)",
+                position: "absolute",
+                bottom: 14,
+                right: 14,
+                zIndex: 10,
               }}
             >
-              Halo, saya <span className="marker-under">{displayName}</span>.
-            </h1>
+              <i className="fa-solid fa-camera" /> Edit Banner &amp; Profil
+            </Link>
+          )}
+        </ParallaxCampBanner>
 
-            <p
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.9rem",
-                lineHeight: 1.65,
-                color: "var(--ink-muted)",
-                maxWidth: 540,
-                marginBottom: 24,
-              }}
-            >
-              {bio}
-            </p>
-
-            {/* Tech Stack Monospace List */}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 26 }}>
-              {techStack.map((tech) => (
-                <span key={tech} className="camp-stamp">
-                  ✳ {tech}
-                </span>
-              ))}
-            </div>
-
-            {isAdmin && (
-              <Link href="/dashboard" className="btn btn-yellow btn-sm">
-                <i className="fa-solid fa-pen" /> KELOLA PROFIL &amp; BANNER
-              </Link>
-            )}
-          </div>
-
-          {/* Right Column: Tilted Profile Window (-1.2deg) with 2 Corner Sticky Notes */}
-          <div className="scratch-window-wrap">
-            <div className="scratch-sticker-tl">VERIFIED // PLATFORM OWNER</div>
-
-            <div className="scratch-window">
-              <div className="scratch-window-bar">
-                <span>id-card.json</span>
-                <span style={{ color: "#2d6a4f" }}>● ONLINE</span>
-              </div>
-
-              <div style={{ padding: 20, display: "flex", alignItems: "center", gap: 16 }}>
+        {/* Profile Body */}
+        <div style={{ padding: "0 26px 28px", position: "relative" }}>
+          {/* Avatar + Quick Stats Bar */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
+              marginTop: -58,
+              marginBottom: 20,
+              position: "relative",
+              zIndex: 10,
+            }}
+          >
+            {/* Framed Studio Avatar */}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+              <div
+                style={{
+                  background: "var(--surface)",
+                  padding: 6,
+                  border: "1.5px solid var(--border)",
+                  boxShadow: "3px 3px 0px var(--border)",
+                  transform: "rotate(-1.2deg)",
+                }}
+              >
                 <div
                   style={{
-                    width: 84,
-                    height: 84,
+                    width: 112,
+                    height: 112,
                     border: "1.5px solid var(--border)",
                     background: "var(--surface-alt)",
-                    flexShrink: 0,
                     overflow: "hidden",
+                    position: "relative",
                   }}
                 >
                   {photoURL ? (
@@ -171,8 +180,8 @@ export default function OwnerPage() {
                       quality={95}
                       src={photoURL}
                       alt={displayName}
-                      width={168}
-                      height={168}
+                      width={224}
+                      height={224}
                       unoptimized={photoURL.startsWith("data:")}
                       style={{ objectFit: "cover", width: "100%", height: "100%" }}
                       priority
@@ -185,7 +194,7 @@ export default function OwnerPage() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: "2rem",
+                        fontSize: "2.5rem",
                         fontWeight: 800,
                       }}
                     >
@@ -193,44 +202,171 @@ export default function OwnerPage() {
                     </div>
                   )}
                 </div>
+              </div>
 
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", lineHeight: 1.6 }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--ink)" }}>
-                    {displayName}
-                  </div>
-                  <div style={{ color: "var(--ink-muted)" }}>@{username}</div>
-                  <div style={{ marginTop: 6 }}>
-                    <span className="camp-stamp" style={{ background: "var(--sage-note)", color: "#141413" }}>
-                      {codes.length} PUBLIC SNIPPETS
-                    </span>
-                  </div>
+              <div style={{ paddingBottom: 4 }}>
+                <div className="scratch-status-line" style={{ marginBottom: 4 }}>
+                  <span className="scratch-status-dot" />
+                  <span>PLATFORM CREATOR &amp; LEAD DEVELOPER</span>
+                </div>
+                <h1
+                  style={{
+                    fontSize: "clamp(1.65rem, 3.2vw, 2.25rem)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.035em",
+                    lineHeight: 1.05,
+                  }}
+                >
+                  <span className="marker-under">{displayName}</span>
+                </h1>
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.82rem",
+                    color: "var(--ink-muted)",
+                    fontWeight: 600,
+                    marginTop: 4,
+                  }}
+                >
+                  @{username} • Full-Stack Software Engineer
                 </div>
               </div>
             </div>
 
-            <div className="scratch-sticker-br">OPEN FOR COLLAB ✳ 24/7</div>
+            {/* Live Developer Stats Strip */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div
+                style={{
+                  background: "var(--surface-alt)",
+                  border: "1.5px solid var(--border)",
+                  padding: "8px 14px",
+                  boxShadow: "2px 2px 0px var(--border)",
+                  fontFamily: "var(--font-mono)",
+                }}
+              >
+                <div style={{ fontSize: "0.68rem", color: "var(--ink-muted)", fontWeight: 700 }}>
+                  TOTAL SNIPPET
+                </div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--ink)" }}>
+                  {codes.length} File
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "var(--mustard)",
+                  border: "1.5px solid #141413",
+                  padding: "8px 14px",
+                  boxShadow: "2px 2px 0px #141413",
+                  fontFamily: "var(--font-mono)",
+                  color: "#141413",
+                }}
+              >
+                <div style={{ fontSize: "0.68rem", fontWeight: 700, opacity: 0.8 }}>
+                  TOTAL DIBACA
+                </div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>
+                  {totalViews} Views
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bio Box & Tech Stack */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 20,
+              paddingTop: 16,
+              borderTop: "1.5px solid var(--border)",
+            }}
+          >
+            {/* Bio */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-muted)",
+                  marginBottom: 8,
+                }}
+              >
+                ✳ TENTANG DEVELOPER
+              </div>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.86rem",
+                  lineHeight: 1.65,
+                  color: "var(--ink)",
+                }}
+              >
+                {bio}
+              </p>
+            </div>
+
+            {/* Tech Stack */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-muted)",
+                  marginBottom: 8,
+                }}
+              >
+                ✳ TECH STACK &amp; KEAHLIAN UTAMA
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {techStack.map((tech) => (
+                  <span
+                    key={tech.name}
+                    className="camp-stamp"
+                    style={{
+                      padding: "5px 10px",
+                      fontSize: "0.76rem",
+                      background: "var(--surface-alt)",
+                      gap: 6,
+                    }}
+                  >
+                    <i className={tech.icon} />
+                    <span>{tech.name}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================
-          2. FULL-WIDTH MUSTARD MARQUEE STRIP
+          2. INFINITE LOOPING MUSTARD MARQUEE STRIP
           ============================================================ */}
-      <MustardDividerStrip
-        items={[
-          `@${username.toUpperCase()}`,
-          "FULL-STACK DEVELOPER",
-          `${codes.length} SNIPPET PUBLIK`,
-          "OPEN SOURCE & AUTOMATION",
-          "DIRECT CHANNELS",
-        ]}
-      />
+      <div style={{ marginBottom: 36 }}>
+        <MustardDividerStrip
+          items={[
+            `@${username.toUpperCase()}`,
+            "VERIFIED PLATFORM OWNER",
+            `${codes.length} SNIPPET PUBLIK`,
+            `${totalViews} TOTAL VIEWS`,
+            "OPEN SOURCE & AUTOMATION",
+            "DIRECT COMMUNITY CHANNELS",
+          ]}
+        />
+      </div>
 
       {/* ============================================================
-          3. OFFICIAL CHANNELS ON OPEN CANVAS
+          3. OFFICIAL CHANNELS & SOCIAL HUB
           ============================================================ */}
-      <section className="section" style={{ paddingTop: 44, paddingBottom: 28 }}>
-        <div className="section-head" style={{ marginBottom: 20 }}>
+      <section style={{ marginBottom: 40 }}>
+        <div className="section-head" style={{ marginBottom: 18 }}>
           <div>
             <div
               style={{
@@ -243,9 +379,9 @@ export default function OwnerPage() {
                 marginBottom: 6,
               }}
             >
-              ✳ NETWORK // DIRECT LINKS
+              ✳ NETWORK // DIRECT CHANNELS
             </div>
-            <h2 style={{ fontSize: "1.65rem", fontWeight: 800 }}>
+            <h2 style={{ fontSize: "1.55rem", fontWeight: 800 }}>
               Saluran Resmi &amp; <span className="marker-under">Kontak Developer</span>
             </h2>
           </div>
@@ -264,15 +400,25 @@ export default function OwnerPage() {
               target="_blank"
               rel="noreferrer"
               className="feature-card"
-              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 14,
+              }}
             >
               <div>
-                <span className="camp-stamp" style={{ marginBottom: 10, background: "var(--sage-note)", color: "#141413" }}>
-                  01 // WHATSAPP
-                </span>
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>Saluran WhatsApp</h3>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span className="camp-stamp" style={{ background: "var(--sage-note)", color: "#141413" }}>
+                    01 // WHATSAPP
+                  </span>
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.25rem", margin: 0, width: 34, height: 34 }} />
+                </div>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>
+                  Saluran WhatsApp
+                </h3>
                 <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--ink-muted)" }}>
-                  Catatan rilis script terbaru, tips pemrograman, dan pembaruan platform.
+                  Update rilis script terbaru, tips pemrograman, dan pengumuman komunitas.
                 </p>
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.76rem", fontWeight: 700 }}>
@@ -287,15 +433,25 @@ export default function OwnerPage() {
               target="_blank"
               rel="noreferrer"
               className="feature-card"
-              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 14,
+              }}
             >
               <div>
-                <span className="camp-stamp" style={{ marginBottom: 10, background: "var(--mustard)", color: "#141413" }}>
-                  02 // GITHUB
-                </span>
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>Arsip GitHub</h3>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span className="camp-stamp" style={{ background: "var(--mustard)", color: "#141413" }}>
+                    02 // GITHUB
+                  </span>
+                  <i className="fa-brands fa-github" style={{ fontSize: "1.25rem", margin: 0, width: 34, height: 34 }} />
+                </div>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>
+                  Repositori GitHub
+                </h3>
                 <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--ink-muted)" }}>
-                  Eksplorasi repositori sumber terbuka, eksperimen bot, dan pustaka utilitas.
+                  Eksplorasi proyek open-source, modul otomatisasi, dan pustaka kode.
                 </p>
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.76rem", fontWeight: 700 }}>
@@ -310,15 +466,25 @@ export default function OwnerPage() {
               target="_blank"
               rel="noreferrer"
               className="feature-card"
-              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 14,
+              }}
             >
               <div>
-                <span className="camp-stamp" style={{ marginBottom: 10, background: "var(--rose-note)", color: "#141413" }}>
-                  03 // TELEGRAM
-                </span>
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>Kontak Telegram</h3>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span className="camp-stamp" style={{ background: "var(--rose-note)", color: "#141413" }}>
+                    03 // TELEGRAM
+                  </span>
+                  <i className="fa-brands fa-telegram" style={{ fontSize: "1.25rem", margin: 0, width: 34, height: 34 }} />
+                </div>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>
+                  Kontak Telegram
+                </h3>
                 <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--ink-muted)" }}>
-                  Sapa langsung untuk diskusi teknis, kolaborasi fitur, atau arsitektur sistem.
+                  Hubungi langsung untuk diskusi teknis, kolaborasi fitur, atau pertanyaan.
                 </p>
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.76rem", fontWeight: 700 }}>
@@ -333,15 +499,23 @@ export default function OwnerPage() {
               target="_blank"
               rel="noreferrer"
               className="feature-card"
-              style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 14,
+              }}
             >
               <div>
-                <span className="camp-stamp" style={{ marginBottom: 10 }}>
-                  04 // TIKTOK
-                </span>
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>Video TikTok</h3>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span className="camp-stamp">04 // TIKTOK</span>
+                  <i className="fa-brands fa-tiktok" style={{ fontSize: "1.25rem", margin: 0, width: 34, height: 34 }} />
+                </div>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: 4 }}>
+                  Video &amp; Demo TikTok
+                </h3>
                 <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--ink-muted)" }}>
-                  Cuplikan singkat eksperimen koding, demo proyek, dan pembuatan aplikasi.
+                  Cuplikan singkat eksperimen koding, showcase bot, dan tutorial praktis.
                 </p>
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.76rem", fontWeight: 700 }}>
@@ -353,9 +527,9 @@ export default function OwnerPage() {
       </section>
 
       {/* ============================================================
-          4. DEVELOPER SNIPPETS
+          4. PUBLISHED SNIPPETS BY DEVELOPER
           ============================================================ */}
-      <section className="section" style={{ paddingTop: 16, paddingBottom: 48 }}>
+      <section>
         <div className="section-head" style={{ marginBottom: 20 }}>
           <div>
             <div
@@ -371,7 +545,7 @@ export default function OwnerPage() {
             >
               ✳ REPOSITORY // PUBLISHED BY @{username.toUpperCase()}
             </div>
-            <h2 style={{ fontSize: "1.65rem", fontWeight: 800 }}>
+            <h2 style={{ fontSize: "1.55rem", fontWeight: 800 }}>
               Koleksi Kode <span className="marker-under">{displayName}</span>
             </h2>
           </div>

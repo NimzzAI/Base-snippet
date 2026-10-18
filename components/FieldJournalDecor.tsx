@@ -166,29 +166,42 @@ export function TiltedScratchpadWindow({
 }
 
 /**
- * 3. MustardDividerStrip — Pita melintang penuh (border-y 1.5px solid #141413, bg #cbb340)
- *    berisi kata kunci pendek yang dipisahkan oleh simbol ✳.
+ * 3. MustardDividerStrip — Infinite Horizontal Looping Marquee Strip
+ *    Berjalan loop ke samping terus-menerus dengan simbol ✳.
  */
 export function MustardDividerStrip({
   items = [
     "OPEN SNIPPET REPOSITORY",
-    "VS CODE VIEWER",
-    "CTRL+K COMMAND PALETTE",
-    "PUBLIC REST API V1",
+    "VS CODE SYNTAX VIEWER",
+    "CTRL+K QUICK JUMP",
+    "PUBLIC JSON & RAW API",
     "INSTANT BOOKMARKS",
     "RAW & MARKDOWN EXPORT",
   ],
 }: {
   items?: string[];
 }) {
+  // Duplicate items 4x so the track is always wider than ultrawide screens and loops seamlessly (-50%)
+  const loopGroup = [...items, ...items];
+
   return (
     <div className="mustard-strip" role="region" aria-label="Fitur Utama">
-      <div className="mustard-strip-inner">
-        {items.map((item, idx) => (
-          <React.Fragment key={idx}>
-            <span>{item}</span>
-            <span aria-hidden="true">✳</span>
-          </React.Fragment>
+      <div className="mustard-strip-track">
+        {[0, 1].map((halfIdx) => (
+          <div
+            key={halfIdx}
+            className="mustard-strip-group"
+            aria-hidden={halfIdx === 1 ? "true" : undefined}
+          >
+            {loopGroup.map((item, idx) => (
+              <React.Fragment key={`${halfIdx}-${idx}`}>
+                <span>{item}</span>
+                <span className="mustard-star" aria-hidden="true">
+                  ✳
+                </span>
+              </React.Fragment>
+            ))}
+          </div>
         ))}
       </div>
     </div>
@@ -196,13 +209,13 @@ export function MustardDividerStrip({
 }
 
 /**
- * 4. ParallaxCampBanner — Clean Architectural Header Banner for Profile Pages
+ * 4. ParallaxCampBanner — Clean Studio Profile Header Banner with Custom Image Support
  */
 export function ParallaxCampBanner({
   imageUrl,
-  height = 165,
+  height = 220,
   stampLeft = "STUDIO // PROFILE",
-  stampRight = "● PUBLIC",
+  stampRight = "● VERIFIED",
   children,
 }: {
   imageUrl?: string;
@@ -222,6 +235,7 @@ export function ParallaxCampBanner({
         background: "#141413",
       }}
     >
+      {/* Banner Image or Architectural Blueprint Pattern */}
       <div
         style={{
           position: "absolute",
@@ -239,14 +253,24 @@ export function ParallaxCampBanner({
               height: "100%",
               backgroundColor: "#141413",
               backgroundImage:
-                "linear-gradient(rgba(242,239,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(242,239,233,0.06) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
+                "radial-gradient(circle at 82% 24%, rgba(203, 179, 64, 0.25) 0%, transparent 45%), radial-gradient(circle at 18% 80%, rgba(142, 184, 151, 0.18) 0%, transparent 45%), linear-gradient(rgba(242,239,233,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(242,239,233,0.07) 1px, transparent 1px)",
+              backgroundSize: "100% 100%, 100% 100%, 28px 28px, 28px 28px",
             }}
           />
         )}
       </div>
 
-      {/* Minimal Top Bar */}
+      {/* Subtle Bottom Vignette so Avatar & Buttons Pop */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(20,20,19,0.2) 0%, rgba(20,20,19,0.55) 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Top Badges */}
       <div className="banner-stamps">
         <span className="camp-stamp" style={{ background: "var(--surface)", color: "#141413" }}>
           ✳ {stampLeft}

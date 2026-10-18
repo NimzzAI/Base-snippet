@@ -14,14 +14,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { adminConfig, isAdmin } = useAuth();
   const socials = adminConfig?.socials || config.admin.socials;
 
-  // Halaman embed tampil polos tanpa sidebar dan tab bar
-  if (pathname?.startsWith("/embed")) {
+  // Halaman embed dan halaman raw tampil polos penuh tanpa sidebar, topbar, footer, dan tab bar
+  if (pathname?.startsWith("/embed") || pathname?.endsWith("/raw")) {
     return <>{children}</>;
   }
 
   return (
     <div className="app-shell">
-      {/* Neo-brutalist Sidebar */}
+      {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
